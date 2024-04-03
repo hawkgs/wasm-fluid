@@ -1,0 +1,24 @@
+{
+  "name": "wasm-fluid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve ./public",
+    "build": "cd fluid; GOOS=js GOARCH=wasm go build -o ../public/wasm/main.wasm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hawkgs/wasm-fluid.git"
+  },
+  "author": "Georgi Serev (hawkgs)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hawkgs/wasm-fluid/issues"
+  },
+  "homepage": "https://github.com/hawkgs/wasm-fluid#readme",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
