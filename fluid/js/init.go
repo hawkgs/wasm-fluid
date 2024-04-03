@@ -22,17 +22,17 @@ func initCreateFluidSystem() {
 		return nil
 	})
 
-	js.Global().Get(GoApi).Set("goCreateFluidSystem", createFluidSystem)
+	js.Global().Get(GoApi).Set("createFluidSystem", createFluidSystem)
 }
 
 func initRequestUpdate() {
 	requestUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
 		particles := fluidSystem.Update()
-		js.Global().Get(GoApi).Call("goUpdateHandler", particles[0].ToMap())
+		js.Global().Get(GoApi).Call("updateHandler", particles[0].ToMap())
 		return nil
 	})
 
-	js.Global().Get(GoApi).Set("goRequestUpdate", requestUpdate)
+	js.Global().Get(GoApi).Set("requestUpdate", requestUpdate)
 }
 
 func InitJsApi() {

@@ -12,7 +12,7 @@ window.GoApi = {};
 
 const ctx = canvas.getContext('2d');
 
-GoApi.goUpdateHandler = (vector) => {
+GoApi.updateHandler = (vector) => {
   console.log('render', vector);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
@@ -29,13 +29,13 @@ async function init() {
   );
 
   go.run(results.instance);
-  GoApi.goCreateFluidSystem({
+  GoApi.createFluidSystem({
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
   });
 
   setInterval(() => {
-    GoApi.goRequestUpdate();
+    GoApi.requestUpdate();
   }, 3000);
 }
 
