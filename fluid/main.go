@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/hawkgs/wasm-fluid/fluid/canvas"
+	"github.com/hawkgs/wasm-fluid/fluid/js"
 )
 
 func main() {
 	fmt.Println("Hello, Go!")
+	js.InitJsApi()
 
-	canvas.InitCanvas()
+	// Prevent exit
+	select {}
 }

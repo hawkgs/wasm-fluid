@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "serve ./public",
-    "build": "cd fluid; GOOS=js GOARCH=wasm go build -o ../public/wasm/main.wasm"
+    "build": "cd fluid; GOOS=js GOARCH=wasm go build -o ../public/wasm/fluid.wasm"
   },
   "repository": {
     "type": "git",

@@ -8,14 +8,15 @@ const CANVAS_HEIGHT = 400;
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
+window.GoApi = {};
 
 const ctx = canvas.getContext('2d');
 
-window.InitCanvas = (resp) => {
-  console.log('InitCanvas called');
-
+GoApi.goUpdateHandler = (vector) => {
+  console.log('render', vector);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
-  ctx.arc(resp.x, resp.y, 5, 0, 2 * Math.PI, false);
+  ctx.arc(vector.x, vector.y, 5, 0, 2 * Math.PI, false);
   ctx.fillStyle = 'red';
   ctx.fill();
 };
@@ -23,12 +24,19 @@ window.InitCanvas = (resp) => {
 async function init() {
   const go = new Go();
   const results = await WebAssembly.instantiateStreaming(
-    fetch('../wasm/main.wasm'),
+    fetch('../wasm/fluid.wasm'),
     go.importObject,
   );
 
   go.run(results.instance);
+  GoApi.goCreateFluidSystem({
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+  });
+
+  setInterval(() => {
+    GoApi.goRequestUpdate();
+  }, 3000);
 }
 
-console.log('Hello, JS!');
 init();
