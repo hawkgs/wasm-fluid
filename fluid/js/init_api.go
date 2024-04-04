@@ -6,7 +6,7 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/system"
 )
 
-const GoApi = "GoApi"
+const FluidApi = "FluidApi"
 
 var fluidSystem *system.System
 
@@ -22,17 +22,17 @@ func initCreateFluidSystem() {
 		return nil
 	})
 
-	js.Global().Get(GoApi).Set("createFluidSystem", createFluidSystem)
+	js.Global().Get(FluidApi).Set("createFluidSystem", createFluidSystem)
 }
 
 func initRequestUpdate() {
 	requestUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
 		particles := fluidSystem.Update()
-		js.Global().Get(GoApi).Call("updateHandler", particles[0].ToMap())
+		js.Global().Get(FluidApi).Call("updateHandler", particles[0].ToMap())
 		return nil
 	})
 
-	js.Global().Get(GoApi).Set("requestUpdate", requestUpdate)
+	js.Global().Get(FluidApi).Set("requestUpdate", requestUpdate)
 }
 
 func InitJsApi() {

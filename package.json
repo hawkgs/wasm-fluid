@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "serve ./public",
-    "build": "cd fluid; GOOS=js GOARCH=wasm go build -o ../public/wasm/fluid.wasm"
+    "build": "cd fluid; GOOS=js GOARCH=wasm go build -o ../public/wasm/fluid.wasm",
+    "build-watch": "nodemon --ext go --watch 'fluid/**/*.go' --exec npm run build"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/hawkgs/wasm-fluid#readme",
   "devDependencies": {
+    "nodemon": "^3.1.0",
     "serve": "^14.2.1"
   }
 }

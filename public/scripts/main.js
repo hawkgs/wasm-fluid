@@ -8,11 +8,11 @@ const CANVAS_HEIGHT = 400;
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
-window.GoApi = {};
+window.FluidApi = {};
 
 const ctx = canvas.getContext('2d');
 
-GoApi.updateHandler = (vector) => {
+FluidApi.updateHandler = (vector) => {
   console.log('render', vector);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
@@ -27,15 +27,15 @@ async function init() {
     fetch('../wasm/fluid.wasm'),
     go.importObject,
   );
-
   go.run(results.instance);
-  GoApi.createFluidSystem({
+
+  FluidApi.createFluidSystem({
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
   });
 
   setInterval(() => {
-    GoApi.requestUpdate();
+    FluidApi.requestUpdate();
   }, 3000);
 }
 
