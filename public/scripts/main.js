@@ -4,6 +4,7 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
+const PARTICLES = 500;
 
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
@@ -12,12 +13,15 @@ window.FluidApi = {};
 
 const ctx = canvas.getContext('2d');
 
-FluidApi.updateHandler = (vector) => {
-  console.log('render', vector);
+FluidApi.updateHandler = (particles) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   ctx.beginPath();
-  ctx.arc(vector.x, vector.y, 5, 0, 2 * Math.PI, false);
-  ctx.fillStyle = 'red';
+  particles.forEach((particle) => {
+    ctx.moveTo(particle.x, particle.y);
+    ctx.arc(particle.x, particle.y, 3, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'red';
+  });
   ctx.fill();
 };
 
@@ -32,11 +36,12 @@ async function init() {
   FluidApi.createFluidSystem({
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
+    particles: PARTICLES,
   });
 
   setInterval(() => {
-    FluidApi.requestUpdate();
-  }, 3000);
+    requestAnimationFrame(() => FluidApi.requestUpdate());
+  }, 1000 / 10);
 }
 
 init();

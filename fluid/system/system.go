@@ -1,7 +1,6 @@
 package system
 
 import (
-	"math"
 	"math/rand"
 
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
@@ -13,20 +12,29 @@ type System struct {
 }
 
 func NewSystem(cfg *SystemConfig) *System {
-	return &System{cfg, []*vectors.Vector{}}
+	particles := createParticles(cfg)
+
+	return &System{cfg, particles}
 }
 
 func (s *System) Update() []*vectors.Vector {
-	// Note(Georgi): Temp. Testing
-	x := math.Min(rand.Float64()*100, float64(s.config.Width))
-	x = math.Max(0, x)
-
-	y := math.Min(rand.Float64()*100, float64(s.config.Height))
-	y = math.Max(0, y)
-
-	v := vectors.NewVector(x, y)
-	s.particles = nil
-	s.particles = append(s.particles, v)
+	for _, p := range s.particles {
+		p.X = rand.Float64() * float64(s.config.Width)
+		p.Y = rand.Float64() * float64(s.config.Height)
+	}
 
 	return s.particles
+}
+
+func createParticles(cfg *SystemConfig) []*vectors.Vector {
+	particles := make([]*vectors.Vector, cfg.Particles)
+
+	for i := range particles {
+		x := rand.Float64() * float64(cfg.Width)
+		y := rand.Float64() * float64(cfg.Height)
+
+		particles[i] = vectors.NewVector(x, y)
+	}
+
+	return particles
 }

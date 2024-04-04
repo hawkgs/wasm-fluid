@@ -15,8 +15,14 @@ func initCreateFluidSystem() {
 		jsCfg := args[0]
 		width := jsCfg.Get("width").Int()
 		height := jsCfg.Get("height").Int()
+		particles := jsCfg.Get("particles").Int()
 
-		cfg := &system.SystemConfig{Width: uint16(width), Height: uint16(height)}
+		cfg := &system.SystemConfig{
+			Width:     uint16(width),
+			Height:    uint16(height),
+			Particles: uint16(particles),
+		}
+
 		fluidSystem = system.NewSystem(cfg)
 
 		return nil
@@ -28,7 +34,9 @@ func initCreateFluidSystem() {
 func initRequestUpdate() {
 	requestUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
 		particles := fluidSystem.Update()
-		js.Global().Get(FluidApi).Call("updateHandler", particles[0].ToMap())
+
+		js.Global().Get(FluidApi).Call("updateHandler", convertVectorsToArray(particles))
+
 		return nil
 	})
 
