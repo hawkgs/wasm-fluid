@@ -1,6 +1,9 @@
 package js
 
-import "github.com/hawkgs/wasm-fluid/fluid/vectors"
+import (
+	"github.com/hawkgs/wasm-fluid/fluid/system"
+	"github.com/hawkgs/wasm-fluid/fluid/vectors"
+)
 
 func convertVectorToMap(v *vectors.Vector) map[string]any {
 	m := make(map[string]any)
@@ -10,11 +13,12 @@ func convertVectorToMap(v *vectors.Vector) map[string]any {
 	return m
 }
 
-func convertVectorsToArray(v []*vectors.Vector) []any {
-	mapped := make([]any, len(v))
+func convertParticlesToLocationsArray(particles []*system.Particle) []any {
+	mapped := make([]any, len(particles))
 
 	for i := range mapped {
-		mapped[i] = convertVectorToMap(v[i])
+		location := convertVectorToMap(particles[i].GetLocation())
+		mapped[i] = location
 	}
 
 	return mapped

@@ -4,7 +4,7 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 500;
+const PARTICLES = 100;
 
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
@@ -41,7 +41,7 @@ async function init() {
 
   setInterval(() => {
     requestAnimationFrame(() => FluidApi.requestUpdate());
-  }, 1000 / 10);
+  }, 1000 / 60);
 }
 
 init();

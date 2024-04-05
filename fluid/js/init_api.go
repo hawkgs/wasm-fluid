@@ -3,6 +3,7 @@ package js
 import (
 	"syscall/js"
 
+	"github.com/hawkgs/wasm-fluid/fluid/forces"
 	"github.com/hawkgs/wasm-fluid/fluid/system"
 )
 
@@ -17,13 +18,19 @@ func initCreateFluidSystem() {
 		height := jsCfg.Get("height").Int()
 		particles := jsCfg.Get("particles").Int()
 
+		// Create config
 		cfg := &system.SystemConfig{
 			Width:     uint16(width),
 			Height:    uint16(height),
 			Particles: uint16(particles),
 		}
 
-		fluidSystem = system.NewSystem(cfg)
+		// Create initial forces
+		forces := []forces.Force{
+			forces.NewGravity(),
+		}
+
+		fluidSystem = system.NewSystem(cfg, forces)
 
 		return nil
 	})
@@ -35,7 +42,7 @@ func initRequestUpdate() {
 	requestUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
 		particles := fluidSystem.Update()
 
-		js.Global().Get(FluidApi).Call("updateHandler", convertVectorsToArray(particles))
+		js.Global().Get(FluidApi).Call("updateHandler", convertParticlesToLocationsArray(particles))
 
 		return nil
 	})
