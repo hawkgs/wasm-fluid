@@ -4,7 +4,7 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 100;
+const PARTICLES = 50;
 
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;

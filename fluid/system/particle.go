@@ -4,7 +4,10 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-const particleMass = 1
+const (
+	particleMass  = 1
+	velocityLimit = 25
+)
 
 type Particle struct {
 	acceleration *vectors.Vector
@@ -42,6 +45,9 @@ func (p *Particle) Update() {
 	// We keep the velocity only for correctness based on physics laws
 	p.velocity.Add(p.acceleration)
 	p.location.Add(p.velocity)
+
+	// Limit the velocity
+	p.velocity.Limit(velocityLimit)
 
 	// Clear the acceleration
 	p.acceleration.Multiply(0)
