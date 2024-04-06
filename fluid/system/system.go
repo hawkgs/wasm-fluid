@@ -37,9 +37,9 @@ func createParticles(cfg *SystemConfig) []*Particle {
 		x := rand.Float64() * float64(cfg.Width)
 		y := rand.Float64() * float64(cfg.Height)
 
-		location := vectors.NewVector(x, y)
+		position := vectors.NewVector(x, y)
 
-		particles[i] = NewParticle(location, container)
+		particles[i] = NewParticle(position, container)
 	}
 
 	return particles

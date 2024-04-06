@@ -14,15 +14,15 @@ func convertVectorToMap(v *vectors.Vector) map[string]any {
 	return m
 }
 
-func convertParticlesToLocationsArray(particles []*system.Particle) []any {
+func convertParticlesToPositionsArray(particles []*system.Particle) []any {
 	mapped := make([]any, len(particles))
 
 	for i := range mapped {
-		location := convertVectorToMap(particles[i].GetLocation())
-		location["x"] = utils.Round(location["x"].(float64), 6)
-		location["y"] = utils.Round(location["y"].(float64), 6)
+		position := convertVectorToMap(particles[i].GetPosition())
+		position["x"] = utils.Round(position["x"].(float64), 6)
+		position["y"] = utils.Round(position["y"].(float64), 6)
 
-		mapped[i] = location
+		mapped[i] = position
 	}
 
 	return mapped

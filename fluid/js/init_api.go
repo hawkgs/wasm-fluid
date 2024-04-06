@@ -42,7 +42,7 @@ func initRequestUpdate() {
 	requestUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
 		particles := fluidSystem.Update()
 
-		js.Global().Get(FluidApi).Call("updateHandler", convertParticlesToLocationsArray(particles))
+		js.Global().Get(FluidApi).Call("updateHandler", convertParticlesToPositionsArray(particles))
 
 		return nil
 	})
