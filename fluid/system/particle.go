@@ -4,17 +4,11 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-const (
-	particleMass  = 1
-	velocityLimit = 25
-)
-
 type Particle struct {
 	acceleration *vectors.Vector
 	velocity     *vectors.Vector
 	position     *vectors.Vector
 	container    *vectors.Vector
-	mass         float64
 }
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector) *Particle {
@@ -23,7 +17,6 @@ func NewParticle(position *vectors.Vector, container *vectors.Vector) *Particle 
 		velocity:     vectors.NewVector(0, 0),
 		position:     position,
 		container:    container,
-		mass:         particleMass,
 	}
 }
 
@@ -35,7 +28,7 @@ func (p *Particle) GetPosition() *vectors.Vector {
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass
 	fCopy := force.Copy()
-	fCopy.Divide(p.mass)
+	fCopy.Divide(particleMass)
 	p.acceleration.Add(fCopy)
 }
 

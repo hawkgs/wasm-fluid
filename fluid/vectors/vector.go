@@ -12,27 +12,35 @@ func NewVector(x float64, y float64) *Vector {
 }
 
 // Add performs addition of the current and provided as an argument vectors
-func (v *Vector) Add(u *Vector) {
+func (v *Vector) Add(u *Vector) *Vector {
 	v.X += u.X
 	v.Y += u.Y
+
+	return v
 }
 
 // Subtract performs subtraction of the current and provided as an argument vectors
-func (v *Vector) Subtract(u *Vector) {
+func (v *Vector) Subtract(u *Vector) *Vector {
 	v.X -= u.X
 	v.Y -= u.Y
+
+	return v
 }
 
 // Multiply performs multiplication of the current vector by N
-func (v *Vector) Multiply(n float64) {
+func (v *Vector) Multiply(n float64) *Vector {
 	v.X *= n
 	v.Y *= n
+
+	return v
 }
 
 // Divide performs division of the current vector by N
-func (v *Vector) Divide(n float64) {
+func (v *Vector) Divide(n float64) *Vector {
 	v.X /= n
 	v.Y /= n
+
+	return v
 }
 
 // Magnitude returns the magnitude of the vector
