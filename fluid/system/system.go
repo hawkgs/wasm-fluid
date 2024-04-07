@@ -2,7 +2,6 @@ package system
 
 import (
 	"math"
-	"math/rand"
 	"strconv"
 
 	"github.com/hawkgs/wasm-fluid/fluid/forces"
@@ -126,13 +125,20 @@ func createParticles(cfg *SystemConfig) []*Particle {
 	particles := make([]*Particle, cfg.Particles)
 	container := vectors.NewVector(float64(cfg.Width), float64(cfg.Height))
 
+	margin := float64(spawnedParticleMargin)
+	height := cfg.Height - uint(margin*8)
+	cursor := vectors.NewVector(margin, margin)
+
 	for i := range particles {
-		x := rand.Float64() * float64(cfg.Width)
-		y := rand.Float64() * float64(cfg.Height)
-
-		position := vectors.NewVector(x, y)
-
+		position := cursor.Copy()
 		particles[i] = NewParticle(position, container)
+
+		if cursor.Y > float64(height) {
+			cursor.Y = margin
+			cursor.X += margin
+		} else {
+			cursor.Y += margin
+		}
 	}
 
 	return particles
