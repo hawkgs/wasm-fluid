@@ -37,22 +37,22 @@ func (s *System) Update() []*Particle {
 	s.updateGrid()
 
 	for _, p := range s.particles {
-		density := calculateDensityGradient(s, p)
+		density := calculateDensity(s, p)
 		p.SetDensity(density)
 	}
 
-	pressures := []float64{}
+	pressures := []*vectors.Vector{}
+
 	for _, p := range s.particles {
 		pressures = append(pressures, calculatePressureGradient(s, p))
 	}
 
-	for _, particle := range s.particles {
-		s.applyForces(particle)
-		// pres := pressures[i]
-		// particle.ApplyForce(vectors.NewVector(pres, pres))
+	for i, particle := range s.particles {
+		particle.ApplyForce(pressures[i])
+		// s.applyForces(particle)
 
-		particle.Contain()
 		particle.Update()
+		particle.Contain()
 	}
 
 	return s.particles

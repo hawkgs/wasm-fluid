@@ -1,52 +1,67 @@
 package system
 
 import (
+	"fmt"
 	"math"
+	"math/rand"
+
+	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-var hPow6 float64 = math.Pow(smoothingRadiusH, 6)
+var scaler = -45 / (math.Pi * math.Pow(smoothingRadiusH, 6))
 
 // Derivative of the pressure kernel; Eqn. (21)
 func pressureSmoothingKernelDerivative(r float64) float64 {
-	if r > smoothingRadiusH {
+	if smoothingRadiusH < r {
 		return 0
 	}
 
-	pow := smoothingRadiusH - r
-	numerator := -45 * pow * pow
-	denominator := math.Pi * hPow6
-
-	return numerator / denominator
+	delta := smoothingRadiusH - r
+	return scaler * delta * delta
 }
 
 // Eqn. (12)
-func CalculatePressure(density float64) float64 {
+func calculatePressure(density float64) float64 {
 	return gasConstK * (density - restDensity)
 }
 
 // Eqn. (10)
-func calculatePressureGradient(system *System, particle *Particle) float64 {
-	var pressure float64 = 0
+func calculatePressureGradient(system *System, selected *Particle) *vectors.Vector {
+	pressure := vectors.NewVector(0, 0)
 
-	neighborParticles := system.getParticleNeighbors(particle)
-	particlePressure := CalculatePressure(particle.density)
+	neighborParticles := system.getParticleNeighbors(selected)
+	selectedPressure := calculatePressure(selected.density)
 
 	for _, p := range neighborParticles {
-		if particle == p {
+		if selected == p {
 			continue
 		}
 
 		pPos := p.position.Copy()
-		particlePos := particle.position.Copy()
+		selectedPos := selected.position.Copy()
 
-		mag := pPos.Subtract(particlePos).Magnitude()
-		w := pressureSmoothingKernelDerivative(mag)
+		delta := selectedPos.Subtract(pPos)
+		deltaMag := delta.Magnitude()
+		var dir *vectors.Vector
+
+		if deltaMag == 0 {
+			dir = vectors.NewVector(rand.Float64(), rand.Float64())
+		} else {
+			dir = delta.Copy().Divide(deltaMag)
+		}
+
+		w := pressureSmoothingKernelDerivative(deltaMag)
 
 		// Todo: multiply by the arithmetic mean of the pressures of the interacting
-		// particles => (p(particle) + p(ParticleI)) / 2 * density(ParticleI)
-		pressureMean := (particlePressure + CalculatePressure(p.density)) / (2 * p.density)
-		pressure += -particleMass * w * pressureMean
+		// particles => (p(selParticle) + p(ParticleI)) / 2
+		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
+		scalarStep := -particleMass * pressureMean * w / p.density
+
+		dir.Multiply(scalarStep)
+		pressure.Add(dir)
 	}
+
+	fmt.Println(pressure)
 
 	return pressure
 }

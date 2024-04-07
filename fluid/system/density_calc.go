@@ -4,38 +4,37 @@ import (
 	"math"
 )
 
-var hPow9 float64 = math.Pow(smoothingRadiusH, 9)
+var densityKernelScaler = 315 / (64 * math.Pi * math.Pow(smoothingRadiusH, 9))
 
-// Derivative of Eqn. (20)
-func densitySmoothingKernelDerivative(r float64) float64 {
-	if r > smoothingRadiusH {
+// Eqn. (20) poly6
+func densitySmoothingKernel(r float64) float64 {
+	if r < 0 || smoothingRadiusH < r {
 		return 0
 	}
 
-	pow := smoothingRadiusH*smoothingRadiusH - r*r
-	numerator := -945 * r * pow * pow
-	denominator := 32 * math.Pi * hPow9
+	deltaRoots := smoothingRadiusH*smoothingRadiusH - r*r
+	rootsPow3 := deltaRoots * deltaRoots * deltaRoots
 
-	return numerator / denominator
+	return rootsPow3 * densityKernelScaler
 }
 
 // Eqn. (3)
-func calculateDensityGradient(system *System, particle *Particle) float64 {
+func calculateDensity(system *System, selected *Particle) float64 {
 	var density float64 = 0
 
-	neighborParticles := system.getParticleNeighbors(particle)
+	neighborParticles := system.getParticleNeighbors(selected)
 
 	for _, p := range neighborParticles {
-		if particle == p {
+		if selected == p {
 			continue
 		}
 
 		pPos := p.position.Copy()
-		particlePos := particle.position.Copy()
+		selectedPos := selected.position.Copy()
+		deltaMag := selectedPos.Subtract(pPos).Magnitude()
 
-		mag := pPos.Subtract(particlePos).Magnitude()
+		w := densitySmoothingKernel(deltaMag)
 
-		w := densitySmoothingKernelDerivative(mag)
 		density += particleMass * w
 	}
 
