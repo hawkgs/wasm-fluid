@@ -2,8 +2,6 @@ package system
 
 import (
 	"math"
-
-	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
 var hPow6 float64 = math.Pow(smoothingRadiusH, 6)
@@ -27,16 +25,27 @@ func CalculatePressure(density float64) float64 {
 }
 
 // Eqn. (10)
-func CalculatePressureGradient(particles []*Particle, particle *vectors.Vector) float64 {
+func calculatePressureGradient(system *System, particle *Particle) float64 {
 	var pressure float64 = 0
 
-	for _, p := range particles {
-		mag := particle.Subtract(p.position).Magnitude()
+	neighborParticles := system.getParticleNeighbors(particle)
+	particlePressure := CalculatePressure(particle.density)
+
+	for _, p := range neighborParticles {
+		if particle == p {
+			continue
+		}
+
+		pPos := p.position.Copy()
+		particlePos := particle.position.Copy()
+
+		mag := pPos.Subtract(particlePos).Magnitude()
 		w := pressureSmoothingKernelDerivative(mag)
 
 		// Todo: multiply by the arithmetic mean of the pressures of the interacting
 		// particles => (p(particle) + p(ParticleI)) / 2 * density(ParticleI)
-		pressure += -particleMass * w
+		pressureMean := (particlePressure + CalculatePressure(p.density)) / (2 * p.density)
+		pressure += -particleMass * w * pressureMean
 	}
 
 	return pressure

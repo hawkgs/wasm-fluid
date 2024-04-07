@@ -9,6 +9,7 @@ type Particle struct {
 	velocity     *vectors.Vector
 	position     *vectors.Vector
 	container    *vectors.Vector
+	density      float64
 }
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector) *Particle {
@@ -28,7 +29,7 @@ func (p *Particle) GetPosition() *vectors.Vector {
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass
 	fCopy := force.Copy()
-	fCopy.Divide(particleMass)
+	fCopy.Divide(particleMass) // Change mass to density based on Eqn. (8)
 	p.acceleration.Add(fCopy)
 }
 
@@ -65,4 +66,8 @@ func (p *Particle) Contain() {
 		p.velocity.Y *= -1
 		p.position.Y = 0
 	}
+}
+
+func (p *Particle) SetDensity(density float64) {
+	p.density = density
 }

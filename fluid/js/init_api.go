@@ -20,9 +20,9 @@ func initCreateFluidSystem() {
 
 		// Create config
 		cfg := &system.SystemConfig{
-			Width:     uint16(width),
-			Height:    uint16(height),
-			Particles: uint16(particles),
+			Width:     uint(width),
+			Height:    uint(height),
+			Particles: uint(particles),
 		}
 
 		// Create initial forces

@@ -2,8 +2,6 @@ package system
 
 import (
 	"math"
-
-	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
 var hPow9 float64 = math.Pow(smoothingRadiusH, 9)
@@ -22,11 +20,21 @@ func densitySmoothingKernelDerivative(r float64) float64 {
 }
 
 // Eqn. (3)
-func CalculateDensityGradient(particles []*Particle, particle *vectors.Vector) float64 {
+func calculateDensityGradient(system *System, particle *Particle) float64 {
 	var density float64 = 0
 
-	for _, p := range particles {
-		mag := particle.Subtract(p.position).Magnitude()
+	neighborParticles := system.getParticleNeighbors(particle)
+
+	for _, p := range neighborParticles {
+		if particle == p {
+			continue
+		}
+
+		pPos := p.position.Copy()
+		particlePos := particle.position.Copy()
+
+		mag := pPos.Subtract(particlePos).Magnitude()
+
 		w := densitySmoothingKernelDerivative(mag)
 		density += particleMass * w
 	}
