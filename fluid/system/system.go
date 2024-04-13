@@ -83,10 +83,13 @@ func (s *System) updateGrid() {
 }
 
 func (s *System) getParticleCell(p *Particle) [2]int {
-	x := uint(p.position.X) / s.gridWidth
-	y := uint(p.position.Y) / s.gridHeight
+	percX := p.position.X / float64(s.config.Width)
+	percY := p.position.Y / float64(s.config.Height)
 
-	return [2]int{int(x), int(y)}
+	x := uint(math.Floor(percX * float64(s.gridWidth)))
+	y := uint(math.Floor(percY * float64(s.gridHeight)))
+
+	return [2]int{int(y), int(x)}
 }
 
 func (s *System) getParticleCellKey(cell [2]int) string {

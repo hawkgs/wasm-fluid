@@ -9,8 +9,12 @@
     <script src="scripts/main.js" type="module"></script>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div class="canvas-wrapper">
+      <div id="grid"></div>
+      <canvas id="canvas"></canvas>
+    </div>
     <div class="controls">
+      <label for="fps-input">FPS:</label>
       <input id="fps-input" type="number" />
       <button id="manual-update">🎞️ NEXT FRAME</button>
       <button id="start-anim">▶️ ANIM</button>

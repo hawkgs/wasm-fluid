@@ -10,8 +10,8 @@ import (
 var scaler = -45 / (math.Pi * math.Pow(smoothingRadiusH, 6))
 
 // Derivative of the pressure kernel; Eqn. (21)
-func pressureSmoothingKernelDerivative(r float64) float64 {
-	delta := smoothingRadiusH - r
+func pressureSmoothingKernelDerivative(distR float64) float64 {
+	delta := smoothingRadiusH - distR
 	return scaler * delta * delta
 }
 
@@ -36,22 +36,22 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		selectedPos := selected.position.Copy()
 
 		delta := pPos.Subtract(selectedPos)
-		deltaMag := delta.Magnitude()
+		distance := delta.Magnitude()
 
 		// Check if withing smoothing radius ....
-		if deltaMag > smoothingRadiusH {
+		if distance > smoothingRadiusH {
 			continue
 		}
 
 		var dir *vectors.Vector
 
-		if deltaMag == 0 {
+		if distance == 0 {
 			dir = vectors.NewVector(rand.Float64(), rand.Float64())
 		} else {
-			dir = delta.Copy().Divide(deltaMag)
+			dir = delta.Copy().Divide(distance)
 		}
 
-		w := pressureSmoothingKernelDerivative(deltaMag)
+		w := pressureSmoothingKernelDerivative(distance)
 
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		scalarStep := -particleMass * pressureMean * w / p.density

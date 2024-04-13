@@ -8,6 +8,38 @@ const PARTICLES = 200;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
 
+// Create grid
+
+function createGrid(smoothingRadius) {
+  const grid = document.getElementById('grid');
+  grid.style.width = CANVAS_WIDTH + 'px';
+  grid.style.height = CANVAS_HEIGHT + 'px';
+
+  const gridWidth = CANVAS_WIDTH / smoothingRadius;
+  const gridHeight = CANVAS_HEIGHT / smoothingRadius;
+  const gridSize = gridWidth * gridHeight;
+
+  for (let i = 0, x = 0; i < gridSize; i++) {
+    const y = i % gridWidth;
+
+    const gCell = document.createElement('div');
+    gCell.className = 'grid-cell';
+    gCell.innerText = `${x},${y}`;
+    gCell.style.width = smoothingRadius + 'px';
+    gCell.style.height = smoothingRadius + 'px';
+
+    grid.appendChild(gCell);
+
+    if (y === gridWidth - 1) {
+      x++;
+    }
+  }
+}
+
+createGrid(40);
+
+// Animation
+
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
@@ -55,12 +87,6 @@ async function init() {
 
   manUpdateBtn.addEventListener('click', () => {
     requestAnimationFrame(() => FluidApi.requestUpdate());
-  });
-
-  document.addEventListener('keypress', (e) => {
-    if (e.key === 'Space') {
-      requestAnimationFrame(() => FluidApi.requestUpdate());
-    }
   });
 
   startAnimBtn.addEventListener('click', () => {
