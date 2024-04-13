@@ -19,8 +19,8 @@ func convertParticlesToPositionsArray(particles []*system.Particle) []any {
 
 	for i := range mapped {
 		position := convertVectorToMap(particles[i].GetPosition())
-		position["x"] = utils.Round(position["x"].(float64), 6)
-		position["y"] = utils.Round(position["y"].(float64), 6)
+		position["x"] = utils.RoundNum(position["x"].(float64), 6)
+		position["y"] = utils.RoundNum(position["y"].(float64), 6)
 
 		mapped[i] = position
 	}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/hawkgs/wasm-fluid/fluid/forces"
+	"github.com/hawkgs/wasm-fluid/fluid/utils"
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
@@ -96,11 +97,10 @@ func (s *System) getParticleCellKey(cell [2]int) string {
 	return strconv.Itoa(cell[0]) + "," + strconv.Itoa(cell[1])
 }
 
-// Includes the target particle as well
 func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 	cell := s.getParticleCell(p)
 
-	cells := [9][2]int{
+	cells := [8][2]int{
 		{cell[0] - 1, cell[1] - 1}, // top left
 		{cell[0] - 1, cell[1]},     // top
 		{cell[0] - 1, cell[1] + 1}, // top right
@@ -111,7 +111,11 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 		{cell[0] + 1, cell[1] + 1}, // bottom right
 	}
 
-	particles := []*Particle{}
+	// Add the target cell particles without the target particle P
+	particles := s.grid[s.getParticleCellKey(cell)]
+	particles = utils.FilterSlice(particles, func(cp *Particle) bool {
+		return p != cp
+	})
 
 	for _, c := range cells {
 		key := s.getParticleCellKey(c)
