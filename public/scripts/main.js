@@ -6,9 +6,7 @@ const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const PARTICLES = 200;
 const PARTICLE_UI_RADIUS = 3;
-const UPDATE_FREQ = 1000 / 10;
-
-let updateType = 'none'; // none | auto | manual
+const DEFAULT_FPS = 60;
 
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
@@ -48,35 +46,41 @@ async function init() {
 
   const manUpdateBtn = document.getElementById('manual-update');
   const startAnimBtn = document.getElementById('start-anim');
+  const stopAnimBtn = document.getElementById('stop-anim');
+  const fpsInput = document.getElementById('fps-input');
+
+  fpsInput.value = DEFAULT_FPS;
+  stopAnimBtn.disabled = true;
+  let interval;
 
   manUpdateBtn.addEventListener('click', () => {
-    if (updateType !== 'manual') {
-      updateType = 'manual';
-      startAnimBtn.disabled = true;
-    }
-
     requestAnimationFrame(() => FluidApi.requestUpdate());
   });
 
   document.addEventListener('keypress', (e) => {
-    if (updateType !== 'manual') {
-      updateType = 'manual';
-      startAnimBtn.disabled = true;
-    }
-
     if (e.key === 'Space') {
       requestAnimationFrame(() => FluidApi.requestUpdate());
     }
   });
 
-  document.getElementById('start-anim').addEventListener('click', () => {
-    manUpdateBtn.disabled = true;
+  startAnimBtn.addEventListener('click', () => {
     startAnimBtn.disabled = true;
-    updateType = 'auto';
+    manUpdateBtn.disabled = true;
+    fpsInput.disabled = true;
+    stopAnimBtn.disabled = false;
+    const fps = parseInt(fpsInput.value, 10);
 
-    setInterval(() => {
+    interval = setInterval(() => {
       requestAnimationFrame(() => FluidApi.requestUpdate());
-    }, UPDATE_FREQ);
+    }, 1000 / fps);
+  });
+
+  stopAnimBtn.addEventListener('click', () => {
+    startAnimBtn.disabled = false;
+    manUpdateBtn.disabled = false;
+    fpsInput.disabled = false;
+    stopAnimBtn.disabled = true;
+    clearInterval(interval);
   });
 }
 

@@ -29,7 +29,7 @@ func (p *Particle) GetPosition() *vectors.Vector {
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass
 	fCopy := force.Copy()
-	fCopy.Divide(particleMass) // Change mass to density based on Eqn. (8)
+	fCopy.Divide(p.density) // Change mass to density based on Eqn. (8)
 
 	p.acceleration.Add(fCopy)
 }

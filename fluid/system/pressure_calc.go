@@ -11,10 +11,6 @@ var scaler = -45 / (math.Pi * math.Pow(smoothingRadiusH, 6))
 
 // Derivative of the pressure kernel; Eqn. (21)
 func pressureSmoothingKernelDerivative(r float64) float64 {
-	if smoothingRadiusH < r {
-		return 0
-	}
-
 	delta := smoothingRadiusH - r
 	return scaler * delta * delta
 }

@@ -20,6 +20,10 @@ canvas {
   margin-top: 40px;
   position: relative;
 
+  #fps-input {
+    width: 60px;
+  }
+
   button {
     margin: 0 5px;
   }

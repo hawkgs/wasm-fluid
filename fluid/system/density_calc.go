@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -8,10 +9,6 @@ var densityKernelScaler = 315 / (64 * math.Pi * math.Pow(smoothingRadiusH, 9))
 
 // Eqn. (20) poly6
 func densitySmoothingKernel(r float64) float64 {
-	if r < 0 || smoothingRadiusH < r {
-		return 0
-	}
-
 	deltaRoots := smoothingRadiusH*smoothingRadiusH - r*r
 	rootsPow3 := deltaRoots * deltaRoots * deltaRoots
 
@@ -43,5 +40,10 @@ func calculateDensity(system *System, selected *Particle) float64 {
 		density += particleMass * w
 	}
 
-	return density
+	fmt.Println("density", density)
+
+	// Check why density is rapidly approaching zero which
+	// causes a rapid inflection in the calc. +0.05 is
+	// a band aid
+	return density + 0.05
 }
