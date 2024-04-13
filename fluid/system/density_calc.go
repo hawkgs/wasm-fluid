@@ -22,9 +22,9 @@ func densitySmoothingKernel(r float64) float64 {
 func calculateDensity(system *System, selected *Particle) float64 {
 	var density float64 = 0
 
-	neighborParticles := system.getParticleNeighbors(selected)
+	// neighborParticles := system.getParticleNeighbors(selected)
 
-	for _, p := range neighborParticles {
+	for _, p := range system.particles {
 		if selected == p {
 			continue
 		}
@@ -32,6 +32,11 @@ func calculateDensity(system *System, selected *Particle) float64 {
 		pPos := p.position.Copy()
 		selectedPos := selected.position.Copy()
 		deltaMag := selectedPos.Subtract(pPos).Magnitude()
+
+		// Check if withing smoothing radius ....
+		if deltaMag > smoothingRadiusH {
+			continue
+		}
 
 		w := densitySmoothingKernel(deltaMag)
 

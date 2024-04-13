@@ -12,3 +12,15 @@ canvas {
   margin: 0 auto;
   display: block;
 }
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  position: relative;
+
+  button {
+    margin: 0 5px;
+  }
+}

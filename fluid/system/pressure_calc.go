@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -29,10 +28,10 @@ func calculatePressure(density float64) float64 {
 func calculatePressureGradient(system *System, selected *Particle) *vectors.Vector {
 	pressure := vectors.NewVector(0, 0)
 
-	neighborParticles := system.getParticleNeighbors(selected)
+	// neighborParticles := system.getParticleNeighbors(selected)
 	selectedPressure := calculatePressure(selected.density)
 
-	for _, p := range neighborParticles {
+	for _, p := range system.particles {
 		if selected == p {
 			continue
 		}
@@ -40,8 +39,14 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pPos := p.position.Copy()
 		selectedPos := selected.position.Copy()
 
-		delta := selectedPos.Subtract(pPos)
+		delta := pPos.Subtract(selectedPos)
 		deltaMag := delta.Magnitude()
+
+		// Check if withing smoothing radius ....
+		if deltaMag > smoothingRadiusH {
+			continue
+		}
+
 		var dir *vectors.Vector
 
 		if deltaMag == 0 {
@@ -52,16 +57,12 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 
 		w := pressureSmoothingKernelDerivative(deltaMag)
 
-		// Todo: multiply by the arithmetic mean of the pressures of the interacting
-		// particles => (p(selParticle) + p(ParticleI)) / 2
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		scalarStep := -particleMass * pressureMean * w / p.density
 
 		dir.Multiply(scalarStep)
 		pressure.Add(dir)
 	}
-
-	fmt.Println(pressure)
 
 	return pressure
 }

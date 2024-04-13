@@ -4,9 +4,11 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 50;
+const PARTICLES = 200;
 const PARTICLE_UI_RADIUS = 3;
-const UPDATE_FREQ = 1000 * 4;
+const UPDATE_FREQ = 1000 / 10;
+
+let updateType = 'none'; // none | auto | manual
 
 const canvas = document.getElementById('canvas');
 canvas.width = CANVAS_WIDTH;
@@ -42,10 +44,40 @@ async function init() {
     particleUiRadius: PARTICLE_UI_RADIUS,
   });
 
-  requestAnimationFrame(() => FluidApi.requestUpdate());
-  setInterval(() => {
+  // Testing helpers
+
+  const manUpdateBtn = document.getElementById('manual-update');
+  const startAnimBtn = document.getElementById('start-anim');
+
+  manUpdateBtn.addEventListener('click', () => {
+    if (updateType !== 'manual') {
+      updateType = 'manual';
+      startAnimBtn.disabled = true;
+    }
+
     requestAnimationFrame(() => FluidApi.requestUpdate());
-  }, UPDATE_FREQ);
+  });
+
+  document.addEventListener('keypress', (e) => {
+    if (updateType !== 'manual') {
+      updateType = 'manual';
+      startAnimBtn.disabled = true;
+    }
+
+    if (e.key === 'Space') {
+      requestAnimationFrame(() => FluidApi.requestUpdate());
+    }
+  });
+
+  document.getElementById('start-anim').addEventListener('click', () => {
+    manUpdateBtn.disabled = true;
+    startAnimBtn.disabled = true;
+    updateType = 'auto';
+
+    setInterval(() => {
+      requestAnimationFrame(() => FluidApi.requestUpdate());
+    }, UPDATE_FREQ);
+  });
 }
 
 init();
