@@ -1,7 +1,8 @@
 package system
 
 type SystemConfig struct {
-	Width     uint
-	Height    uint
-	Particles uint
+	Width            uint
+	Height           uint
+	Particles        uint
+	ParticleUiRadius float64
 }

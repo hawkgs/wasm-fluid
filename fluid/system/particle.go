@@ -10,14 +10,16 @@ type Particle struct {
 	position     *vectors.Vector
 	container    *vectors.Vector
 	density      float64
+	cfg          *SystemConfig
 }
 
-func NewParticle(position *vectors.Vector, container *vectors.Vector) *Particle {
+func NewParticle(position *vectors.Vector, container *vectors.Vector, cfg *SystemConfig) *Particle {
 	return &Particle{
 		acceleration: vectors.NewVector(0, 0),
 		velocity:     vectors.NewVector(0, 0),
 		position:     position,
 		container:    container,
+		cfg:          cfg,
 	}
 }
 
@@ -52,20 +54,20 @@ func (p *Particle) Update() {
 func (p *Particle) Contain() {
 	// Right/left
 	if p.position.X > p.container.X {
-		p.velocity.X *= -1
+		p.velocity.X *= -1 * collisionDamping
 		p.position.X = p.container.X
-	} else if p.position.X < 0 {
-		p.velocity.X *= -1
-		p.position.X = 0
+	} else if p.position.X < p.cfg.ParticleUiRadius {
+		p.velocity.X *= -1 * collisionDamping
+		p.position.X = p.cfg.ParticleUiRadius
 	}
 
 	// Bottom/top
 	if p.position.Y > p.container.Y {
-		p.velocity.Y *= -1
+		p.velocity.Y *= -1 * collisionDamping
 		p.position.Y = p.container.Y
-	} else if p.position.Y < 0 {
-		p.velocity.Y *= -1
-		p.position.Y = 0
+	} else if p.position.Y < p.cfg.ParticleUiRadius {
+		p.velocity.Y *= -1 * collisionDamping
+		p.position.Y = p.cfg.ParticleUiRadius
 	}
 }
 
