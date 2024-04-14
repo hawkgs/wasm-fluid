@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -23,6 +24,8 @@ func NewSystem(cfg *SystemConfig, extForces []forces.Force) *System {
 
 	gridWidth := uint(math.Ceil(float64(cfg.Width) / float64(smoothingRadiusH)))
 	gridHeight := uint(math.Ceil(float64(cfg.Height) / float64(smoothingRadiusH)))
+
+	fmt.Println(gridWidth, gridHeight)
 
 	return &System{
 		cfg,
@@ -48,8 +51,8 @@ func (s *System) Update() []*Particle {
 		pressures = append(pressures, calculatePressureGradient(s, p))
 	}
 
-	for i, particle := range s.particles {
-		particle.ApplyForce(pressures[i])
+	for _, particle := range s.particles {
+		// particle.ApplyForce(pressures[i])
 		// s.applyForces(particle)
 
 		particle.Update()
@@ -79,6 +82,8 @@ func (s *System) updateGrid() {
 			grid[key] = []*Particle{p}
 		}
 	}
+
+	fmt.Println(grid)
 
 	s.grid = grid
 }
@@ -130,10 +135,10 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 
 func createParticles(cfg *SystemConfig) []*Particle {
 	particles := make([]*Particle, cfg.Particles)
-	container := vectors.NewVector(float64(cfg.Width), float64(cfg.Height))
+	container := vectors.NewVector(cfg.Width, cfg.Height)
 
-	margin := float64(spawnedParticleMargin)
-	height := cfg.Height - uint(margin*8)
+	margin := spawnedParticleMargin
+	height := cfg.Height - margin*4
 	cursor := vectors.NewVector(margin, margin)
 
 	for i := range particles {

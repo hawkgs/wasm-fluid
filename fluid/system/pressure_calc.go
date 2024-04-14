@@ -56,5 +56,7 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pressure.Add(dir)
 	}
 
+	// fmt.Println(pressure)
+
 	return pressure
 }

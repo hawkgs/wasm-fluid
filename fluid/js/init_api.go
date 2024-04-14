@@ -19,11 +19,7 @@ func initCreateFluidSystem() {
 		particles := jsCfg.Get("particles").Int()
 
 		// Create config
-		cfg := &system.SystemConfig{
-			Width:     uint(width),
-			Height:    uint(height),
-			Particles: uint(particles),
-		}
+		cfg := system.NewSystemConfig(width, height, particles)
 
 		// Create initial forces
 		forces := []forces.Force{

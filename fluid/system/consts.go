@@ -1,10 +1,11 @@
 package system
 
 const (
+	SystemScale           = 40
 	particleMass          = 1
-	velocityLimit         = 25
-	smoothingRadiusH      = 40
-	gasConstK             = 10
-	restDensity           = 3
-	spawnedParticleMargin = 10
+	velocityLimit         = 0.5
+	smoothingRadiusH      = 1
+	gasConstK             = 5
+	restDensity           = 0.5
+	spawnedParticleMargin = 0.25
 )
