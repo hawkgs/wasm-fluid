@@ -4,7 +4,7 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 200;
+const PARTICLES = 500;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
 
@@ -54,7 +54,7 @@ FluidApi.updateHandler = (particles) => {
   particles.forEach((particle) => {
     ctx.moveTo(particle.x, particle.y);
     ctx.arc(particle.x, particle.y, PARTICLE_UI_RADIUS, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#2052a8';
   });
   ctx.fill();
 };

@@ -8,4 +8,5 @@ const (
 	gasConstK             = 5
 	restDensity           = 0.5
 	spawnedParticleMargin = 0.25
+	collisionDamping      = 0.5
 )

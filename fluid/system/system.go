@@ -135,7 +135,10 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 
 func createParticles(cfg *SystemConfig) []*Particle {
 	particles := make([]*Particle, cfg.Particles)
-	container := vectors.NewVector(cfg.Width, cfg.Height)
+	container := vectors.NewVector(
+		cfg.Width-cfg.ParticleUiRadius,
+		cfg.Height-cfg.ParticleUiRadius,
+	)
 
 	margin := spawnedParticleMargin
 	height := cfg.Height - margin*4
@@ -143,7 +146,7 @@ func createParticles(cfg *SystemConfig) []*Particle {
 
 	for i := range particles {
 		position := cursor.Copy()
-		particles[i] = NewParticle(position, container)
+		particles[i] = NewParticle(position, container, cfg)
 
 		if cursor.Y > float64(height) {
 			cursor.Y = margin
