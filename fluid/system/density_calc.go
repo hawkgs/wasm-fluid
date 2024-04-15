@@ -26,7 +26,7 @@ func calculateDensity(system *System, selected *Particle) float64 {
 		distance := selectedPos.Subtract(pPos).Magnitude()
 
 		// Check if within smoothing radius
-		if distance > smoothingRadiusH {
+		if distance >= smoothingRadiusH {
 			continue
 		}
 

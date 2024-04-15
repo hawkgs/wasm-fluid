@@ -35,7 +35,7 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		distance := delta.Magnitude()
 
 		// Check if within smoothing radius
-		if distance > smoothingRadiusH {
+		if distance >= smoothingRadiusH {
 			continue
 		}
 
