@@ -25,6 +25,7 @@ func initCreateFluidSystem() {
 		// Create initial forces
 		forces := []forces.Force{
 			forces.NewGravity(),
+			// forces.NewWind(),
 		}
 
 		fluidSystem = system.NewSystem(cfg, forces)

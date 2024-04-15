@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -20,10 +19,9 @@ func densitySmoothingKernel(distR float64) float64 {
 // Eqn. (3)
 func calculateDensity(system *System, selected *Particle) float64 {
 	var density float64 = 0
+	inRange := 0
 
 	neighborParticles := system.getParticleNeighbors(selected)
-
-	fmt.Println("PARTICLE", system.getParticleCellKey(system.getParticleCell(selected)))
 
 	for _, p := range neighborParticles {
 		pPos := p.position.Copy()
@@ -35,25 +33,16 @@ func calculateDensity(system *System, selected *Particle) float64 {
 			continue
 		}
 
-		fmt.Println("distance", distance)
-
 		w := densitySmoothingKernel(distance)
+		inRange++
 
 		density += particleMass * w
 	}
 
-	fmt.Println("density", density)
-	fmt.Println(" ")
-	fmt.Println(" ")
-	fmt.Println(" ")
-	fmt.Println(" ")
+	// fmt.Println("Density", system.getParticleCell(selected), density, inRange)
 
 	// Check why density is rapidly approaching zero which
 	// causes a rapid inflection in the calc. +0.05 is
 	// a band aid
-	// if density <= 0 {
-	// return 0.00005
-	// }
-
 	return density
 }

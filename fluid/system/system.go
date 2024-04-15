@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 
@@ -24,8 +23,6 @@ func NewSystem(cfg *SystemConfig, extForces []forces.Force) *System {
 
 	gridWidth := uint(math.Ceil(float64(cfg.Width) / float64(smoothingRadiusH)))
 	gridHeight := uint(math.Ceil(float64(cfg.Height) / float64(smoothingRadiusH)))
-
-	fmt.Println(gridWidth, gridHeight)
 
 	return &System{
 		cfg,
@@ -51,8 +48,8 @@ func (s *System) Update() []*Particle {
 		pressures = append(pressures, calculatePressureGradient(s, p))
 	}
 
-	for _, particle := range s.particles {
-		// particle.ApplyForce(pressures[i])
+	for i, particle := range s.particles {
+		particle.ApplyForce(pressures[i])
 		// s.applyForces(particle)
 
 		particle.Update()
@@ -83,14 +80,12 @@ func (s *System) updateGrid() {
 		}
 	}
 
-	fmt.Println(grid)
-
 	s.grid = grid
 }
 
 func (s *System) getParticleCell(p *Particle) [2]int {
-	percX := p.position.X / float64(s.config.Width)
-	percY := p.position.Y / float64(s.config.Height)
+	percX := p.position.X / s.config.Width
+	percY := p.position.Y / s.config.Height
 
 	x := uint(math.Floor(percX * float64(s.gridWidth)))
 	y := uint(math.Floor(percY * float64(s.gridHeight)))

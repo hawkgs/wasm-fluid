@@ -24,6 +24,10 @@ func calculatePressure(density float64) float64 {
 func calculatePressureGradient(system *System, selected *Particle) *vectors.Vector {
 	pressure := vectors.NewVector(0, 0)
 
+	if selected.density == 0 {
+		return pressure
+	}
+
 	neighborParticles := system.getParticleNeighbors(selected)
 	selectedPressure := calculatePressure(selected.density)
 
@@ -35,14 +39,14 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		distance := delta.Magnitude()
 
 		// Check if within smoothing radius
-		if distance > smoothingRadiusH {
+		if distance > smoothingRadiusH || p.density == 0 {
 			continue
 		}
 
 		var dir *vectors.Vector
 
 		if distance == 0 {
-			dir = vectors.NewVector(rand.Float64(), rand.Float64())
+			dir = vectors.NewVector(rand.Float64()/SystemScale, rand.Float64()/SystemScale)
 		} else {
 			dir = delta.Copy().Divide(distance)
 		}
@@ -52,11 +56,11 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		scalarStep := -particleMass * pressureMean * w / p.density
 
+		// fmt.Println("w", w)
+
 		dir.Multiply(scalarStep)
 		pressure.Add(dir)
 	}
-
-	// fmt.Println(pressure)
 
 	return pressure
 }
