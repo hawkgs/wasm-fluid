@@ -50,10 +50,6 @@ func (s *System) Update() []*Particle {
 	}
 
 	for i, particle := range s.particles {
-		if particle.density == 0 {
-			continue
-		}
-
 		particle.ApplyForce(pressures[i])
 		s.applyForces(particle)
 

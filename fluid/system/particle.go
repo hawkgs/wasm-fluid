@@ -29,10 +29,20 @@ func (p *Particle) GetPosition() *vectors.Vector {
 
 // ApplyForce adds the force vector the object's acceleration vector
 func (p *Particle) ApplyForce(force *vectors.Vector) {
-	// Newton's 2nd law: Acceleration = Sum of all forces / Mass
+
+	// Since our simulation is still unstable, we have cases
+	// where a single particle could be outside of the smoothing radius of
+	// any other particle, so the density is 0. In order to avoid NaN use the
+	// mass in that case instead
+	density := p.density
+	if density <= 0 {
+		density = particleMass
+	}
+
+	// Newton's 2nd law: Acceleration = Sum of all forces / Mass (or density)
 	fCopy := force.Copy()
-	fCopy.Divide(p.density)  // Change mass to density based on Eqn. (8)
-	fCopy.Multiply(timestep) // Euler method
+	fCopy.Divide(density)    // Change mass to density based on Eqn. (8)
+	fCopy.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
 
 	p.acceleration.Add(fCopy)
 }

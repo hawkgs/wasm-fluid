@@ -4,9 +4,9 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 200;
+const PARTICLES = 400;
 const PARTICLE_UI_RADIUS = 3;
-const DEFAULT_FPS = 60;
+const DEFAULT_FPS = 120;
 
 // Create grid
 

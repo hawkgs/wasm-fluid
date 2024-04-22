@@ -2,7 +2,7 @@ package forces
 
 import "github.com/hawkgs/wasm-fluid/fluid/vectors"
 
-const gravitationalPull = 1000
+const gravitationalPull = 500
 
 type Gravity struct {
 	BaseForce
