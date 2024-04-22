@@ -31,7 +31,8 @@ func (p *Particle) GetPosition() *vectors.Vector {
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass
 	fCopy := force.Copy()
-	fCopy.Divide(particleMass) // Change mass to density based on Eqn. (8)
+	fCopy.Divide(p.density)  // Change mass to density based on Eqn. (8)
+	fCopy.Multiply(timestep) // Euler method
 
 	p.acceleration.Add(fCopy)
 }
@@ -41,6 +42,7 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 func (p *Particle) Update() {
 	// We keep the velocity only for correctness based on physics laws
 	p.velocity.Add(p.acceleration)
+	p.velocity.Multiply(timestep) // Euler method
 	p.position.Add(p.velocity)
 
 	// Limit the velocity

@@ -2,17 +2,20 @@ package system
 
 import (
 	"math"
-	"math/rand"
 
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-var scaler = -45 / (math.Pi * math.Pow(smoothingRadiusH, 6))
+// Adapted for 2D SPH
+// var normalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
+
+// Adapted for 2D SPH
+var spikyNormalizationConst = -10 / (math.Pi * math.Pow(smoothingRadiusH, 5))
 
 // Derivative of the pressure kernel; Eqn. (21)
 func pressureSmoothingKernelDerivative(distR float64) float64 {
 	delta := smoothingRadiusH - distR
-	return scaler * delta * delta
+	return spikyNormalizationConst * delta * delta
 }
 
 // Eqn. (12)
@@ -35,20 +38,12 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pPos := p.position.Copy()
 		selectedPos := selected.position.Copy()
 
-		delta := pPos.Subtract(selectedPos)
+		delta := selectedPos.Subtract(pPos)
 		distance := delta.Magnitude()
 
 		// Check if within smoothing radius
-		if distance > smoothingRadiusH || p.density == 0 {
+		if distance > smoothingRadiusH {
 			continue
-		}
-
-		var dir *vectors.Vector
-
-		if distance == 0 {
-			dir = vectors.NewVector(rand.Float64()/SystemScale, rand.Float64()/SystemScale)
-		} else {
-			dir = delta.Copy().Divide(distance)
 		}
 
 		w := pressureSmoothingKernelDerivative(distance)
@@ -56,8 +51,7 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		scalarStep := -particleMass * pressureMean * w / p.density
 
-		// fmt.Println("w", w)
-
+		dir := delta.Copy().Normalize()
 		dir.Multiply(scalarStep)
 		pressure.Add(dir)
 	}
