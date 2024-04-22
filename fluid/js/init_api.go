@@ -20,16 +20,12 @@ func initCreateFluidSystem() {
 		particleUiRadius := jsCfg.Get("particleUiRadius").Int()
 
 		// Create config
-		cfg := &system.SystemConfig{
-			Width:            uint(width),
-			Height:           uint(height),
-			Particles:        uint(particles),
-			ParticleUiRadius: float64(particleUiRadius),
-		}
+		cfg := system.NewSystemConfig(width, height, particles, particleUiRadius)
 
 		// Create initial forces
 		forces := []forces.Force{
 			forces.NewGravity(),
+			// forces.NewWind(),
 		}
 
 		fluidSystem = system.NewSystem(cfg, forces)

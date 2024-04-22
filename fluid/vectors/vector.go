@@ -59,12 +59,14 @@ func (v *Vector) Limit(mag float64) {
 }
 
 // Normalize sets the magnitude to 1
-func (v *Vector) Normalize() {
+func (v *Vector) Normalize() *Vector {
 	mag := v.Magnitude()
 
 	if mag != 0 {
 		v.Divide(mag)
 	}
+
+	return v
 }
 
 // Distance calculates the Eucleadean distance between the two vectors

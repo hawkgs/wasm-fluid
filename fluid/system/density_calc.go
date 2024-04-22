@@ -4,14 +4,17 @@ import (
 	"math"
 )
 
-var densityKernelScaler = 315 / (64 * math.Pi * math.Pow(smoothingRadiusH, 9))
+// Adapted for 2D SPH
+var poly6NormalizationConst = 4 / (math.Pi * math.Pow(smoothingRadiusH, 8))
+
+// var densityKernelScaler = 1 / (3 * math.Pi * math.Pow(smoothingRadiusH, 6))
 
 // Eqn. (20) poly6
 func densitySmoothingKernel(distR float64) float64 {
 	deltaRoots := smoothingRadiusH*smoothingRadiusH - distR*distR
 	rootsPow3 := deltaRoots * deltaRoots * deltaRoots
 
-	return rootsPow3 * densityKernelScaler
+	return rootsPow3 * poly6NormalizationConst
 }
 
 // Eqn. (3)
@@ -26,19 +29,11 @@ func calculateDensity(system *System, selected *Particle) float64 {
 		distance := selectedPos.Subtract(pPos).Magnitude()
 
 		// Check if within smoothing radius
-		if distance >= smoothingRadiusH {
-			continue
+		if distance < smoothingRadiusH {
+			w := densitySmoothingKernel(distance)
+			density += particleMass * w
 		}
-
-		w := densitySmoothingKernel(distance)
-
-		density += particleMass * w
 	}
 
-	// fmt.Println("density", density)
-
-	// Check why density is rapidly approaching zero which
-	// causes a rapid inflection in the calc. +0.05 is
-	// a band aid
-	return density + 0.1
+	return density
 }

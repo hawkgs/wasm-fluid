@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -49,11 +50,19 @@ func (s *System) Update() []*Particle {
 	}
 
 	for i, particle := range s.particles {
+		if particle.density == 0 {
+			continue
+		}
+
 		particle.ApplyForce(pressures[i])
-		// s.applyForces(particle)
+		s.applyForces(particle)
 
 		particle.Update()
 		particle.Contain()
+
+		if math.IsNaN(particle.position.X) || math.IsNaN(particle.position.Y) {
+			fmt.Println("nan position")
+		}
 	}
 
 	return s.particles
@@ -84,8 +93,8 @@ func (s *System) updateGrid() {
 }
 
 func (s *System) getParticleCell(p *Particle) [2]int {
-	percX := p.position.X / float64(s.config.Width)
-	percY := p.position.Y / float64(s.config.Height)
+	percX := p.position.X / s.config.Width
+	percY := p.position.Y / s.config.Height
 
 	x := uint(math.Floor(percX * float64(s.gridWidth)))
 	y := uint(math.Floor(percY * float64(s.gridHeight)))
@@ -131,13 +140,13 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 func createParticles(cfg *SystemConfig) []*Particle {
 	particles := make([]*Particle, cfg.Particles)
 	container := vectors.NewVector(
-		float64(cfg.Width)-cfg.ParticleUiRadius,
-		float64(cfg.Height)-cfg.ParticleUiRadius,
+		cfg.Width-cfg.ParticleUiRadius,
+		cfg.Height-cfg.ParticleUiRadius,
 	)
 
-	margin := float64(spawnedParticleMargin)
-	height := cfg.Height - uint(margin*8)
-	cursor := vectors.NewVector(margin, margin)
+	margin := spawnedParticleMargin
+	height := cfg.Height - margin*4
+	cursor := vectors.NewVector(margin*16, margin)
 
 	for i := range particles {
 		position := cursor.Copy()
