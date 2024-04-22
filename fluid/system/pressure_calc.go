@@ -7,10 +7,7 @@ import (
 )
 
 // Adapted for 2D SPH
-// var normalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
-
-// Adapted for 2D SPH
-var spikyNormalizationConst = -10 / (math.Pi * math.Pow(smoothingRadiusH, 5))
+var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
 
 // Derivative of the pressure kernel; Eqn. (21)
 func pressureSmoothingKernelDerivative(distR float64) float64 {
@@ -20,7 +17,11 @@ func pressureSmoothingKernelDerivative(distR float64) float64 {
 
 // Eqn. (12)
 func calculatePressure(density float64) float64 {
-	return gasConstK * (density - restDensity)
+	p := gasConstK * (density - restDensity)
+
+	// fmt.Println(p)
+
+	return p
 }
 
 // Eqn. (10)

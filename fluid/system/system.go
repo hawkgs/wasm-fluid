@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -49,11 +50,19 @@ func (s *System) Update() []*Particle {
 	}
 
 	for i, particle := range s.particles {
+		if particle.density == 0 {
+			continue
+		}
+
 		particle.ApplyForce(pressures[i])
-		// s.applyForces(particle)
+		s.applyForces(particle)
 
 		particle.Update()
 		particle.Contain()
+
+		if math.IsNaN(particle.position.X) || math.IsNaN(particle.position.Y) {
+			fmt.Println("nan position")
+		}
 	}
 
 	return s.particles
@@ -137,7 +146,7 @@ func createParticles(cfg *SystemConfig) []*Particle {
 
 	margin := spawnedParticleMargin
 	height := cfg.Height - margin*4
-	cursor := vectors.NewVector(margin, margin)
+	cursor := vectors.NewVector(margin*16, margin)
 
 	for i := range particles {
 		position := cursor.Copy()
