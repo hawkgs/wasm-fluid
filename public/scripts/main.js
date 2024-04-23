@@ -12,10 +12,10 @@ const DEFAULT_FPS = 60;
 
 // Correlates to the vals in parameters.go
 const SYS_SCALE = 40;
-const SMOOTHING_RADIUS_H = 1; // should be updated
+const SMOOTHING_RADIUS_H = 0.5;
 const SCALED_H = SYS_SCALE * SMOOTHING_RADIUS_H;
 
-function createGrid() {
+function createGrid(showCellKey) {
   const grid = document.getElementById('grid');
   grid.style.width = CANVAS_WIDTH + 'px';
   grid.style.height = CANVAS_HEIGHT + 'px';
@@ -29,9 +29,12 @@ function createGrid() {
 
     const gCell = document.createElement('div');
     gCell.className = 'grid-cell';
-    gCell.innerText = `${x},${y}`;
     gCell.style.width = SCALED_H + 'px';
     gCell.style.height = SCALED_H + 'px';
+
+    if (showCellKey) {
+      gCell.innerText = `${x},${y}`;
+    }
 
     grid.appendChild(gCell);
 
@@ -41,7 +44,7 @@ function createGrid() {
   }
 }
 
-createGrid();
+createGrid(false);
 
 // Animation
 
