@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 
@@ -20,8 +19,8 @@ type System struct {
 func NewSystem(cfg *SystemConfig) *System {
 	particles := createParticles(cfg)
 
-	gridWidth := uint(math.Ceil(float64(cfg.Width) / float64(smoothingRadiusH)))
-	gridHeight := uint(math.Ceil(float64(cfg.Height) / float64(smoothingRadiusH)))
+	gridWidth := uint(math.Ceil(cfg.Width / smoothingRadiusH))
+	gridHeight := uint(math.Ceil(cfg.Height / smoothingRadiusH))
 
 	return &System{
 		cfg,
@@ -40,20 +39,12 @@ func (s *System) Update() []*Particle {
 		p.SetDensity(density)
 	}
 
-	nsForces := []*vectors.Vector{}
-
 	for _, p := range s.particles {
-		nsForces = append(nsForces, calculateNavierStokesForces(s, p))
-	}
+		nsForces := calculateNavierStokesForces(s, p)
 
-	for i, particle := range s.particles {
-		particle.ApplyForce(nsForces[i])
-		particle.Update()
-		particle.Contain()
-
-		if math.IsNaN(particle.position.X) || math.IsNaN(particle.position.Y) {
-			fmt.Println("nan position")
-		}
+		p.ApplyForce(nsForces)
+		p.Update()
+		p.Contain()
 	}
 
 	return s.particles
