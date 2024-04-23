@@ -6,17 +6,22 @@ const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const PARTICLES = 600;
 const PARTICLE_UI_RADIUS = 3;
-const DEFAULT_FPS = 120;
+const DEFAULT_FPS = 60;
 
 // Create grid
 
-function createGrid(smoothingRadius) {
+// Correlates to the vals in parameters.go
+const SYS_SCALE = 40;
+const SMOOTHING_RADIUS_H = 1; // should be updated
+const SCALED_H = SYS_SCALE * SMOOTHING_RADIUS_H;
+
+function createGrid() {
   const grid = document.getElementById('grid');
   grid.style.width = CANVAS_WIDTH + 'px';
   grid.style.height = CANVAS_HEIGHT + 'px';
 
-  const gridWidth = CANVAS_WIDTH / smoothingRadius;
-  const gridHeight = CANVAS_HEIGHT / smoothingRadius;
+  const gridWidth = CANVAS_WIDTH / SCALED_H;
+  const gridHeight = CANVAS_HEIGHT / SCALED_H;
   const gridSize = gridWidth * gridHeight;
 
   for (let i = 0, x = 0; i < gridSize; i++) {
@@ -25,8 +30,8 @@ function createGrid(smoothingRadius) {
     const gCell = document.createElement('div');
     gCell.className = 'grid-cell';
     gCell.innerText = `${x},${y}`;
-    gCell.style.width = smoothingRadius + 'px';
-    gCell.style.height = smoothingRadius + 'px';
+    gCell.style.width = SCALED_H + 'px';
+    gCell.style.height = SCALED_H + 'px';
 
     grid.appendChild(gCell);
 
@@ -36,7 +41,7 @@ function createGrid(smoothingRadius) {
   }
 }
 
-createGrid(40);
+createGrid();
 
 // Animation
 
@@ -50,32 +55,15 @@ const ctx = canvas.getContext('2d');
 FluidApi.updateHandler = (particles) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.beginPath();
   particles.forEach((particle) => {
-    ctx.moveTo(particle.x, particle.y);
+    ctx.beginPath();
     ctx.arc(particle.x, particle.y, PARTICLE_UI_RADIUS, 0, 2 * Math.PI, false);
-    ctx.fillStyle = '#2052a8';
+    ctx.fillStyle = particle.vColor;
+    ctx.fill();
   });
-  ctx.fill();
 };
 
-async function init() {
-  const go = new Go();
-  const results = await WebAssembly.instantiateStreaming(
-    fetch('../wasm/fluid.wasm'),
-    go.importObject,
-  );
-  go.run(results.instance);
-
-  FluidApi.createFluidSystem({
-    width: CANVAS_WIDTH,
-    height: CANVAS_HEIGHT,
-    particles: PARTICLES,
-    particleUiRadius: PARTICLE_UI_RADIUS,
-  });
-
-  // Testing helpers
-
+function initControls() {
   const manUpdateBtn = document.getElementById('manual-update');
   const startAnimBtn = document.getElementById('start-anim');
   const stopAnimBtn = document.getElementById('stop-anim');
@@ -108,6 +96,24 @@ async function init() {
     stopAnimBtn.disabled = true;
     clearInterval(interval);
   });
+}
+
+async function init() {
+  const go = new Go();
+  const results = await WebAssembly.instantiateStreaming(
+    fetch('../wasm/fluid.wasm'),
+    go.importObject,
+  );
+  go.run(results.instance);
+
+  FluidApi.createFluidSystem({
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    particles: PARTICLES,
+    particleUiRadius: PARTICLE_UI_RADIUS,
+  });
+
+  initControls();
 }
 
 init();

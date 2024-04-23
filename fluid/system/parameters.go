@@ -9,6 +9,6 @@ const (
 	restDensity           = 10.0
 	viscosityConst        = 50.0
 	spawnedParticleMargin = 0.15
-	collisionDamping      = 1.0
+	collisionDamping      = 0.8
 	timestep              = 0.02 // delta time
 )

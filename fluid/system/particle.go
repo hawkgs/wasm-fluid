@@ -27,6 +27,14 @@ func (p *Particle) GetPosition() *vectors.Vector {
 	return p.position
 }
 
+func (p *Particle) GetVelocity() *vectors.Vector {
+	return p.velocity
+}
+
+func (p *Particle) GetAcceleration() *vectors.Vector {
+	return p.acceleration
+}
+
 // ApplyForce adds the force vector the object's acceleration vector
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 
