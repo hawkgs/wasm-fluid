@@ -20,27 +20,21 @@ func (v *Vector) Add(u *Vector) *Vector {
 }
 
 // Subtract performs subtraction of the current and provided as an argument vectors
-func (v *Vector) Subtract(u *Vector) *Vector {
+func (v *Vector) Subtract(u *Vector) {
 	v.X -= u.X
 	v.Y -= u.Y
-
-	return v
 }
 
 // Multiply performs multiplication of the current vector by N
-func (v *Vector) Multiply(n float64) *Vector {
+func (v *Vector) Multiply(n float64) {
 	v.X *= n
 	v.Y *= n
-
-	return v
 }
 
 // Divide performs division of the current vector by N
-func (v *Vector) Divide(n float64) *Vector {
+func (v *Vector) Divide(n float64) {
 	v.X /= n
 	v.Y /= n
-
-	return v
 }
 
 // Magnitude returns the magnitude of the vector
@@ -59,14 +53,12 @@ func (v *Vector) Limit(mag float64) {
 }
 
 // Normalize sets the magnitude to 1
-func (v *Vector) Normalize() *Vector {
+func (v *Vector) Normalize() {
 	mag := v.Magnitude()
 
 	if mag != 0 {
 		v.Divide(mag)
 	}
-
-	return v
 }
 
 // Distance calculates the Eucleadean distance between the two vectors
@@ -77,4 +69,31 @@ func (v *Vector) Distance(u *Vector) float64 {
 // Copy creates a copy of the vector
 func (v *Vector) Copy() *Vector {
 	return NewVector(v.X, v.Y)
+}
+
+func (v *Vector) ImmutAdd(u *Vector) *Vector {
+	return NewVector(v.X+u.X, v.Y+u.Y)
+}
+
+func (v *Vector) ImmutSubtract(u *Vector) *Vector {
+	return NewVector(v.X-u.X, v.Y-u.Y)
+}
+
+func (v *Vector) ImmutMultiply(n float64) *Vector {
+	return NewVector(v.X*n, v.Y*n)
+}
+
+func (v *Vector) ImmutDivide(n float64) *Vector {
+	return NewVector(v.X/n, v.Y/n)
+}
+
+// Normalize sets the magnitude to 1
+func (v *Vector) ImmutNormalize() *Vector {
+	mag := v.Magnitude()
+
+	if mag != 0 {
+		return v.ImmutDivide(mag)
+	}
+
+	return v.Copy()
 }

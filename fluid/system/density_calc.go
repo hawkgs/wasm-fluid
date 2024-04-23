@@ -7,8 +7,6 @@ import (
 // Adapted for 2D SPH
 var poly6NormalizationConst = 4 / (math.Pi * math.Pow(smoothingRadiusH, 8))
 
-// var densityKernelScaler = 1 / (3 * math.Pi * math.Pow(smoothingRadiusH, 6))
-
 // Eqn. (20) poly6
 func densitySmoothingKernel(distR float64) float64 {
 	deltaRoots := smoothingRadiusH*smoothingRadiusH - distR*distR
@@ -24,9 +22,7 @@ func calculateDensity(system *System, selected *Particle) float64 {
 	neighborParticles := system.getParticleNeighbors(selected)
 
 	for _, p := range neighborParticles {
-		pPos := p.position.Copy()
-		selectedPos := selected.position.Copy()
-		distance := selectedPos.Subtract(pPos).Magnitude()
+		distance := selected.position.ImmutSubtract(p.position).Magnitude()
 
 		// Check if within smoothing radius
 		if distance < smoothingRadiusH {

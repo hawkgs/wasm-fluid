@@ -36,10 +36,7 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 	selectedPressure := calculatePressure(selected.density)
 
 	for _, p := range neighborParticles {
-		pPos := p.position.Copy()
-		selectedPos := selected.position.Copy()
-
-		delta := selectedPos.Subtract(pPos)
+		delta := selected.position.ImmutSubtract(p.position)
 		distance := delta.Magnitude()
 
 		// Check if within smoothing radius
@@ -52,7 +49,7 @@ func calculatePressureGradient(system *System, selected *Particle) *vectors.Vect
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		scalarStep := -particleMass * pressureMean * w / p.density
 
-		dir := delta.Copy().Normalize()
+		dir := delta.ImmutNormalize()
 		dir.Multiply(scalarStep)
 		pressure.Add(dir)
 	}
