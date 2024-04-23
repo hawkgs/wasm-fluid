@@ -43,14 +43,14 @@ func (s *System) Update() []*Particle {
 		p.SetDensity(density)
 	}
 
-	pressures := []*vectors.Vector{}
+	nsForces := []*vectors.Vector{}
 
 	for _, p := range s.particles {
-		pressures = append(pressures, calculatePressureGradient(s, p))
+		nsForces = append(nsForces, calculateNavierStokesForces(s, p))
 	}
 
 	for i, particle := range s.particles {
-		particle.ApplyForce(pressures[i])
+		particle.ApplyForce(nsForces[i])
 		s.applyForces(particle)
 
 		particle.Update()
