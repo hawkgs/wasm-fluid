@@ -9,9 +9,9 @@ type SystemConfig struct {
 
 func NewSystemConfig(width int, height int, particles int, particleUiRadius int) *SystemConfig {
 	return &SystemConfig{
-		Width:            float64(width) / float64(SystemScale),
-		Height:           float64(height) / float64(SystemScale),
+		Width:            float64(width) / SystemScale,
+		Height:           float64(height) / SystemScale,
 		Particles:        uint(particles),
-		ParticleUiRadius: float64(particleUiRadius) / float64(SystemScale),
+		ParticleUiRadius: float64(particleUiRadius) / SystemScale,
 	}
 }

@@ -3,7 +3,6 @@ package js
 import (
 	"syscall/js"
 
-	"github.com/hawkgs/wasm-fluid/fluid/forces"
 	"github.com/hawkgs/wasm-fluid/fluid/system"
 )
 
@@ -21,14 +20,7 @@ func initCreateFluidSystem() {
 
 		// Create config
 		cfg := system.NewSystemConfig(width, height, particles, particleUiRadius)
-
-		// Create initial forces
-		forces := []forces.Force{
-			forces.NewGravity(),
-			// forces.NewWind(),
-		}
-
-		fluidSystem = system.NewSystem(cfg, forces)
+		fluidSystem = system.NewSystem(cfg)
 
 		return nil
 	})

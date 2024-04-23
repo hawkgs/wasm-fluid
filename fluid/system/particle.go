@@ -40,11 +40,10 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	}
 
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass (or density)
-	fCopy := force.Copy()
-	fCopy.Divide(density)    // Change mass to density based on Eqn. (8)
-	fCopy.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
+	force.Divide(density)    // Change mass to density based on Eqn. (8)
+	force.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
 
-	p.acceleration.Add(fCopy)
+	p.acceleration.Add(force)
 }
 
 // Update modifies the object's position depending on the applied forces;

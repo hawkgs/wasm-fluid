@@ -6,6 +6,9 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
+// Refactor
+var gravityVector = vectors.NewVector(0, 750)
+
 // Adapted for 2D SPH
 var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
 
@@ -70,5 +73,6 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		viscosity.Add(velocityDiff)
 	}
 
-	return pressure.ImmutAdd(viscosity)
+	// Pressure + Viscosity + Ext. forces (i.e. Gravity)
+	return pressure.ImmutAdd(viscosity).ImmutAdd(gravityVector)
 }

@@ -5,21 +5,19 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/hawkgs/wasm-fluid/fluid/forces"
 	"github.com/hawkgs/wasm-fluid/fluid/utils"
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
 type System struct {
-	config         *SystemConfig
-	particles      []*Particle
-	grid           map[string][]*Particle
-	externalForces []forces.Force
-	gridWidth      uint
-	gridHeight     uint
+	config     *SystemConfig
+	particles  []*Particle
+	grid       map[string][]*Particle
+	gridWidth  uint
+	gridHeight uint
 }
 
-func NewSystem(cfg *SystemConfig, extForces []forces.Force) *System {
+func NewSystem(cfg *SystemConfig) *System {
 	particles := createParticles(cfg)
 
 	gridWidth := uint(math.Ceil(float64(cfg.Width) / float64(smoothingRadiusH)))
@@ -29,7 +27,6 @@ func NewSystem(cfg *SystemConfig, extForces []forces.Force) *System {
 		cfg,
 		particles,
 		make(map[string][]*Particle, gridWidth*gridHeight),
-		extForces,
 		gridWidth,
 		gridHeight,
 	}
@@ -51,8 +48,6 @@ func (s *System) Update() []*Particle {
 
 	for i, particle := range s.particles {
 		particle.ApplyForce(nsForces[i])
-		s.applyForces(particle)
-
 		particle.Update()
 		particle.Contain()
 
@@ -62,12 +57,6 @@ func (s *System) Update() []*Particle {
 	}
 
 	return s.particles
-}
-
-func (s *System) applyForces(p *Particle) {
-	for _, f := range s.externalForces {
-		p.ApplyForce(f.GetVector())
-	}
 }
 
 func (s *System) updateGrid() {
