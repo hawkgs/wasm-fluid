@@ -31,14 +31,18 @@ func NewSystem(cfg *SystemConfig) *System {
 	}
 }
 
+// Update calculates all densities, the Navier-Stokes forces based on SPH and then applies them
 func (s *System) Update() []*Particle {
+	// We need to know the cell of every particle prior the calculations
 	s.updateGrid()
 
+	// Calculate densities
 	for _, p := range s.particles {
 		density := calculateDensity(s, p)
 		p.SetDensity(density)
 	}
 
+	// Calculates pressure, viscosity and ext. forces for each particle and then apply them
 	for _, p := range s.particles {
 		nsForces := calculateNavierStokesForces(s, p)
 
@@ -50,6 +54,9 @@ func (s *System) Update() []*Particle {
 	return s.particles
 }
 
+// updateGrid creates/updates a grid with particles with the size of the smoothing radius.
+// Since SPH checks the particles only within the smoothing radius, this optimization helps
+// us to reduce the number of calculation (i.e. not iterate over particles outside the radius).
 func (s *System) updateGrid() {
 	cellsCount := s.gridWidth * s.gridHeight
 	grid := make(map[string][]*Particle, cellsCount)
@@ -68,6 +75,7 @@ func (s *System) updateGrid() {
 	s.grid = grid
 }
 
+// getParticleCell returns the cell indices of a particle
 func (s *System) getParticleCell(p *Particle) [2]int {
 	percX := p.position.X / s.config.Width
 	percY := p.position.Y / s.config.Height
@@ -78,10 +86,14 @@ func (s *System) getParticleCell(p *Particle) [2]int {
 	return [2]int{int(y), int(x)}
 }
 
+// getParticleCellKey returns the grid key of a particle
 func (s *System) getParticleCellKey(cell [2]int) string {
 	return strconv.Itoa(cell[0]) + "," + strconv.Itoa(cell[1])
 }
 
+// getParticleNeighbors returns all neighbors of a given particle that
+// might be within the smoothing radius (i.e. the particles inside the
+// neighbor grid cells; excl. the target particle).
 func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 	cell := s.getParticleCell(p)
 
@@ -96,7 +108,7 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 		{cell[0] + 1, cell[1] + 1}, // bottom right
 	}
 
-	// Add the target cell particles without the target particle P
+	// Add the target cell particles without the target particle
 	particles := s.grid[s.getParticleCellKey(cell)]
 	particles = utils.FilterSlice(particles, func(cp *Particle) bool {
 		return p != cp
@@ -113,6 +125,7 @@ func (s *System) getParticleNeighbors(p *Particle) []*Particle {
 	return particles
 }
 
+// createParticles creates the initial stack of particles that is dropped onto the field
 func createParticles(cfg *SystemConfig) []*Particle {
 	particles := make([]*Particle, cfg.Particles)
 	container := vectors.NewVector(
@@ -121,6 +134,9 @@ func createParticles(cfg *SystemConfig) []*Particle {
 	)
 
 	margin := spawnedParticleMargin
+
+	// The hardcoded values are arbitrary and affect
+	// the initial position of the particle stack
 	height := cfg.Height - margin*4
 	cursor := vectors.NewVector(margin*16, margin)
 

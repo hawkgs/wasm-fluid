@@ -12,11 +12,9 @@ func NewVector(x float64, y float64) *Vector {
 }
 
 // Add performs addition of the current and provided as an argument vectors
-func (v *Vector) Add(u *Vector) *Vector {
+func (v *Vector) Add(u *Vector) {
 	v.X += u.X
 	v.Y += u.Y
-
-	return v
 }
 
 // Subtract performs subtraction of the current and provided as an argument vectors
@@ -71,24 +69,28 @@ func (v *Vector) Copy() *Vector {
 	return NewVector(v.X, v.Y)
 }
 
+// ImmutAdd performs addition of the vectors without mutating them. It returns a new one.
 func (v *Vector) ImmutAdd(u *Vector) *Vector {
 	return NewVector(v.X+u.X, v.Y+u.Y)
 }
 
+// ImmutSubtract performs subtraction of the vectors without mutating them. It returns a new one.
 func (v *Vector) ImmutSubtract(u *Vector) *Vector {
 	return NewVector(v.X-u.X, v.Y-u.Y)
 }
 
+// ImmutMultiply performs multiplication of the vectors without mutating them. It returns a new one.
 func (v *Vector) ImmutMultiply(n float64) *Vector {
 	return NewVector(v.X*n, v.Y*n)
 }
 
+// ImmutDivide performs division of the vectors without mutating them. It returns a new one.
 func (v *Vector) ImmutDivide(n float64) *Vector {
 	return NewVector(v.X/n, v.Y/n)
 }
 
-// Normalize sets the magnitude to 1
-func (v *Vector) ImmutNormalize() *Vector {
+// Normalized returns a normalized version of the target vector without mutating it.
+func (v *Vector) Normalized() *Vector {
 	mag := v.Magnitude()
 
 	if mag != 0 {

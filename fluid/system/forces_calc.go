@@ -6,27 +6,28 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-// Refactor
+// Gravity vector
+// Todo(Georgi): Revise the value
 var gravityVector = vectors.NewVector(0, 750)
 
-// Adapted for 2D SPH
+// Normalization constant for the Spiky kernel adapted for 2D SPH
 var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
 
-// Derivative of the pressure kernel; Eqn. (21) spiky
+// Derivative of the pressure kernel; Müller et al – Eqn. (21) Spiky kernel
 func pressureSmoothingKernelDerivative(distR float64) float64 {
 	delta := smoothingRadiusH - distR
 	return spikyNormalizationConst * delta * delta
 }
 
-// Adapted for 2d sph
+// Normalization constant for the Viscosity kernel adapted for 2D SPH
 var viscosityNormalizationConst = 40 / (math.Pi * math.Pow(smoothingRadiusH, 5))
 
-// Laplacian of the viscosity kernel; Eqn. (22) visc
+// Laplacian of the viscosity kernel; Müller et al – Eqn. (22) Viscosity kernel
 func viscositySmoothingKernelLaplacian(distR float64) float64 {
 	return viscosityNormalizationConst * (smoothingRadiusH - distR)
 }
 
-// Eqn. (12)
+// Müller et al – Eqn. (12)
 func calculatePressure(density float64) float64 {
 	return gasConstK * (density - restDensity)
 }
@@ -35,9 +36,9 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 	pressure := vectors.NewVector(0, 0)
 	viscosity := vectors.NewVector(0, 0)
 
-	// avoid nan
+	// Avoid NaN
 	if selected.density == 0 {
-		return pressure
+		return pressure // Could be any 0,0 vector
 	}
 
 	neighborParticles := system.getParticleNeighbors(selected)
@@ -47,25 +48,24 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		delta := selected.position.ImmutSubtract(p.position)
 		distance := delta.Magnitude()
 
-		// Check if within smoothing radius
 		if distance >= smoothingRadiusH {
 			continue
 		}
 
-		// Eqn. (10)
-		// calculate pressure
+		// Calculate pressure gradient; Müller et al – Eqn. (10)
 		wPres := pressureSmoothingKernelDerivative(distance)
 
 		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
 		presScalarStep := -particleMass * pressureMean * wPres / p.density
 
-		dir := delta.ImmutNormalize()
+		dir := delta.Normalized()
 		dir.Multiply(presScalarStep)
 
 		pressure.Add(dir)
 
-		// calculate viscosity; Eqn. (14)
+		// Calculate viscosity Laplacian; Müller et al – Eqn. (14)
 		wVisc := viscositySmoothingKernelLaplacian(distance)
+
 		viscScalarStep := particleMass * viscosityConst * wVisc
 		velocityDiff := p.velocity.ImmutSubtract(selected.velocity).ImmutDivide(p.density)
 		velocityDiff.Multiply(viscScalarStep)
@@ -73,6 +73,7 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		viscosity.Add(velocityDiff)
 	}
 
-	// Pressure + Viscosity + Ext. forces (i.e. Gravity)
+	// Add all forces: Navier-Stokes equation; Müller et al – Eqn. (7)
+	// => Pressure + Viscosity + Ext. forces (i.e. Gravity)
 	return pressure.ImmutAdd(viscosity).ImmutAdd(gravityVector)
 }

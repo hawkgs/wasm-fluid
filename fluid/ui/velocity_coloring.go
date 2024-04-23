@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	maxVelocity = 0.05
-	stepSize    = 1.0 / 3.0
+	maxVelocity = 0.05      // Based on a downscaled field
+	stepSize    = 1.0 / 3.0 // 0.33, equal to the gradient steps
 )
 
 type color = [3]float64
@@ -17,6 +17,7 @@ type colorData struct {
 	color *color
 }
 
+// Velocity color gradient (red-orange-green-blue)
 var gradient = []*colorData{
 	{
 		step:  0,
@@ -36,7 +37,8 @@ var gradient = []*colorData{
 	},
 }
 
-func getMeanColor(color1 *color, color2 *color, clr2Influence float64) *color {
+// getColorMix mixes two colors by a provided influence (for the 2nd color)
+func getColorMix(color1 *color, color2 *color, clr2Influence float64) *color {
 	ci2 := clr2Influence
 	ci1 := 1 - ci2
 
@@ -47,6 +49,7 @@ func getMeanColor(color1 *color, color2 *color, clr2Influence float64) *color {
 	}
 }
 
+// toColorString returns a JS-compatible RGB color string
 func toColorString(color *color) string {
 	return "rgb(" +
 		strconv.Itoa(int(color[0])) + ", " +
@@ -54,10 +57,12 @@ func toColorString(color *color) string {
 		strconv.Itoa(int(color[2])) + ")"
 }
 
+// GetParticleVelocityColor determines the color of the particle based on its velocity
 func GetParticleVelocityColor(v float64) string {
 	if v >= maxVelocity {
 		return toColorString(gradient[len(gradient)-1].color)
 	}
+
 	vNorm := v / maxVelocity
 
 	for i := len(gradient) - 1; i >= 0; i-- {
@@ -65,11 +70,12 @@ func GetParticleVelocityColor(v float64) string {
 
 		if vNorm >= curr.step {
 			influence := (vNorm - curr.step) / stepSize
-			newColor := getMeanColor(curr.color, gradient[i+1].color, influence)
+			newColor := getColorMix(curr.color, gradient[i+1].color, influence)
 
 			return toColorString(newColor)
 		}
 	}
 
+	// Should never be called, if the V >= 0
 	return toColorString(gradient[0].color)
 }

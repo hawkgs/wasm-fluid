@@ -4,10 +4,10 @@ import (
 	"math"
 )
 
-// Adapted for 2D SPH
+// Normalization constant for the Poly6 kernel adapted for 2D SPH
 var poly6NormalizationConst = 4 / (math.Pi * math.Pow(smoothingRadiusH, 8))
 
-// Eqn. (20) poly6
+// Müller et al – Eqn. (20) Poly6 kernel
 func densitySmoothingKernel(distR float64) float64 {
 	deltaRoots := smoothingRadiusH*smoothingRadiusH - distR*distR
 	rootsPow3 := deltaRoots * deltaRoots * deltaRoots
@@ -15,7 +15,7 @@ func densitySmoothingKernel(distR float64) float64 {
 	return rootsPow3 * poly6NormalizationConst
 }
 
-// Eqn. (3)
+// Müller et al – Eqn. (3)
 func calculateDensity(system *System, selected *Particle) float64 {
 	var density float64 = 0
 
@@ -24,7 +24,6 @@ func calculateDensity(system *System, selected *Particle) float64 {
 	for _, p := range neighborParticles {
 		distance := selected.position.ImmutSubtract(p.position).Magnitude()
 
-		// Check if within smoothing radius
 		if distance < smoothingRadiusH {
 			w := densitySmoothingKernel(distance)
 			density += particleMass * w
