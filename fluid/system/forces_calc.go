@@ -7,8 +7,7 @@ import (
 )
 
 // Gravity vector
-// Todo(Georgi): Revise the value
-var gravityVector = vectors.NewVector(0, 750)
+var gravityVector = vectors.NewVector(0, gravityForce)
 
 // Normalization constant for the Spiky kernel adapted for 2D SPH
 var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
