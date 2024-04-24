@@ -8,7 +8,7 @@ const PARTICLES = 600;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
 
-// Create grid
+// Create grid (for debugging purposes)
 
 // Correlates to the vals in parameters.go
 const SYS_SCALE = 40;
@@ -68,36 +68,45 @@ FluidApi.updateHandler = (particles) => {
 
 function initControls() {
   const manUpdateBtn = document.getElementById('manual-update');
-  const startAnimBtn = document.getElementById('start-anim');
-  const stopAnimBtn = document.getElementById('stop-anim');
+  const playBtn = document.getElementById('play-btn');
   const fpsInput = document.getElementById('fps-input');
 
   fpsInput.value = DEFAULT_FPS;
-  stopAnimBtn.disabled = true;
-  let interval;
 
-  manUpdateBtn.addEventListener('click', () => {
-    requestAnimationFrame(() => FluidApi.requestUpdate());
-  });
+  let isPlaying = false,
+    interval;
 
-  startAnimBtn.addEventListener('click', () => {
-    startAnimBtn.disabled = true;
+  const play = () => {
+    playBtn.innerHTML = '⏸️ PAUSE';
     manUpdateBtn.disabled = true;
     fpsInput.disabled = true;
-    stopAnimBtn.disabled = false;
     const fps = parseInt(fpsInput.value, 10);
 
     interval = setInterval(() => {
       requestAnimationFrame(() => FluidApi.requestUpdate());
     }, 1000 / fps);
-  });
+  };
 
-  stopAnimBtn.addEventListener('click', () => {
-    startAnimBtn.disabled = false;
+  const pause = () => {
+    playBtn.innerHTML = '▶️ PLAY';
     manUpdateBtn.disabled = false;
     fpsInput.disabled = false;
-    stopAnimBtn.disabled = true;
+
     clearInterval(interval);
+  };
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+
+    isPlaying = !isPlaying;
+  });
+
+  manUpdateBtn.addEventListener('click', () => {
+    requestAnimationFrame(() => FluidApi.requestUpdate());
   });
 }
 
