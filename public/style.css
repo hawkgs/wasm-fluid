@@ -48,5 +48,6 @@ canvas {
 
   button {
     margin: 0 5px;
+    min-width: 80px;
   }
 }

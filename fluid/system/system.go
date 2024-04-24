@@ -9,16 +9,16 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-// For debugging
-var devFramesCt uint = 0
-var devNanDetected = false
-
 type System struct {
 	config     *SystemConfig
 	particles  []*Particle
 	grid       map[string][]*Particle
 	gridWidth  uint
 	gridHeight uint
+
+	// For debugging
+	devFramesCt    uint
+	devNanDetected bool
 }
 
 func NewSystem(cfg *SystemConfig) *System {
@@ -33,6 +33,8 @@ func NewSystem(cfg *SystemConfig) *System {
 		make(map[string][]*Particle, gridWidth*gridHeight),
 		gridWidth,
 		gridHeight,
+		0,
+		false,
 	}
 }
 
@@ -55,10 +57,10 @@ func (s *System) Update() []*Particle {
 		p.Update()
 		p.Contain()
 
-		devAlarmForNanPos(p)
+		s.devAlarmForNanPos(p)
 	}
 
-	devFramesCt++
+	s.devFramesCt++
 
 	return s.particles
 }
@@ -165,10 +167,10 @@ func createParticles(cfg *SystemConfig) []*Particle {
 }
 
 // devAlarmForNanPos alerts for particles with NaN position
-func devAlarmForNanPos(p *Particle) {
-	if !devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
+func (s *System) devAlarmForNanPos(p *Particle) {
+	if !s.devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
 		fmt.Println("NaN position detected!")
-		devNanDetected = true
+		s.devNanDetected = true
 	}
 }
 
@@ -184,7 +186,7 @@ func (s *System) DevPrintStats() {
 
 	fmt.Println("CURRENT SYSTEM STATS")
 	fmt.Println("--------------------")
-	fmt.Println("Current frame:", devFramesCt)
+	fmt.Println("Current frame:", s.devFramesCt)
 	fmt.Println("Okay particles:", s.config.Particles-nanParticles)
 	fmt.Println("NaN particles:", nanParticles)
 	fmt.Println("")

@@ -66,10 +66,22 @@ FluidApi.updateHandler = (particles) => {
   });
 };
 
+function createSystem() {
+  FluidApi.createFluidSystem({
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    particles: PARTICLES,
+    particleUiRadius: PARTICLE_UI_RADIUS,
+  });
+
+  console.log('%cFluid system initialized!', 'color: lightgreen');
+}
+
 function initControls() {
   const manUpdateBtn = document.getElementById('manual-update');
   const playBtn = document.getElementById('play-btn');
   const statsBtn = document.getElementById('stats-btn');
+  const resetBtn = document.getElementById('reset-btn');
   const fpsInput = document.getElementById('fps-input');
 
   fpsInput.value = DEFAULT_FPS;
@@ -81,6 +93,7 @@ function initControls() {
     playBtn.innerHTML = '⏸️ PAUSE';
     manUpdateBtn.disabled = true;
     fpsInput.disabled = true;
+
     const fps = parseInt(fpsInput.value, 10);
 
     interval = setInterval(() => {
@@ -110,10 +123,17 @@ function initControls() {
     requestAnimationFrame(() => FluidApi.requestUpdate());
   });
 
-  // For debugging
-  statsBtn.addEventListener('click', () => {
-    FluidApi.devPrintSystemStats();
+  resetBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      pause();
+      isPlaying = false;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    createSystem();
   });
+
+  // For debugging
+  statsBtn.addEventListener('click', () => FluidApi.devPrintSystemStats());
 }
 
 async function init() {
@@ -124,13 +144,7 @@ async function init() {
   );
   go.run(results.instance);
 
-  FluidApi.createFluidSystem({
-    width: CANVAS_WIDTH,
-    height: CANVAS_HEIGHT,
-    particles: PARTICLES,
-    particleUiRadius: PARTICLE_UI_RADIUS,
-  });
-
+  createSystem();
   initControls();
 }
 
