@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -49,6 +50,8 @@ func (s *System) Update() []*Particle {
 		p.ApplyForce(nsForces)
 		p.Update()
 		p.Contain()
+
+		devAlarmForNanPos(p)
 	}
 
 	return s.particles
@@ -153,4 +156,14 @@ func createParticles(cfg *SystemConfig) []*Particle {
 	}
 
 	return particles
+}
+
+var devNanDetected = false
+
+// devAlarmForNanPos alerts for particles with NaN position
+func devAlarmForNanPos(p *Particle) {
+	if !devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
+		fmt.Println("NaN position detected!")
+		devNanDetected = true
+	}
 }

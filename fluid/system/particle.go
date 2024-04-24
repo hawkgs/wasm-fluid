@@ -43,8 +43,9 @@ func (p *Particle) SetDensity(density float64) {
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Since our simulation is still unstable, we have cases
 	// where a single particle could be outside of the smoothing radius of
-	// any other particle, so the density is 0. In order to avoid NaN use the
-	// mass in that case instead
+	// any other particle, so the density is 0. However, ext. forces are
+	// still applicable, so in order to avoid division by zero,
+	// we use the mass instead.
 	// Why density is used?: Müller et al – Eqn. (8)
 	density := p.density
 	if density <= 0 {

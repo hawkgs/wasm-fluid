@@ -36,9 +36,9 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 	pressure := vectors.NewVector(0, 0)
 	viscosity := vectors.NewVector(0, 0)
 
-	// Avoid NaN
+	// If a sole particle (density = 0), return only ext. forces
 	if selected.density == 0 {
-		return pressure // Could be any 0,0 vector
+		return gravityVector.Copy()
 	}
 
 	neighborParticles := system.getParticleNeighbors(selected)
