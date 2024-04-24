@@ -9,6 +9,10 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
+// For debugging
+var devFramesCt uint = 0
+var devNanDetected = false
+
 type System struct {
 	config     *SystemConfig
 	particles  []*Particle
@@ -53,6 +57,8 @@ func (s *System) Update() []*Particle {
 
 		devAlarmForNanPos(p)
 	}
+
+	devFramesCt++
 
 	return s.particles
 }
@@ -136,7 +142,7 @@ func createParticles(cfg *SystemConfig) []*Particle {
 		cfg.Height-cfg.ParticleUiRadius,
 	)
 
-	margin := spawnedParticleMargin
+	margin := cfg.ParticleUiRadius * 2
 
 	// The hardcoded values are arbitrary and affect
 	// the initial position of the particle stack
@@ -158,12 +164,28 @@ func createParticles(cfg *SystemConfig) []*Particle {
 	return particles
 }
 
-var devNanDetected = false
-
 // devAlarmForNanPos alerts for particles with NaN position
 func devAlarmForNanPos(p *Particle) {
 	if !devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
 		fmt.Println("NaN position detected!")
 		devNanDetected = true
 	}
+}
+
+// DevPrintStats prints the current status of the system. Used for debugging.
+func (s *System) DevPrintStats() {
+	var nanParticles uint = 0
+
+	for _, p := range s.particles {
+		if math.IsNaN(p.position.X) || math.IsNaN(p.position.Y) {
+			nanParticles++
+		}
+	}
+
+	fmt.Println("CURRENT SYSTEM STATS")
+	fmt.Println("--------------------")
+	fmt.Println("Current frame:", devFramesCt)
+	fmt.Println("Okay particles:", s.config.Particles-nanParticles)
+	fmt.Println("NaN particles:", nanParticles)
+	fmt.Println("")
 }

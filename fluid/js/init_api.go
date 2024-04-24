@@ -45,8 +45,20 @@ func initRequestUpdate() {
 	js.Global().Get(FluidApi).Set("requestUpdate", requestUpdate)
 }
 
+// initDevPrintSystemStats is used for debugging purposes
+func initDevPrintSystemStats() {
+	devPrintSystemStats := js.FuncOf(func(this js.Value, args []js.Value) any {
+		fluidSystem.DevPrintStats()
+
+		return nil
+	})
+
+	js.Global().Get(FluidApi).Set("devPrintSystemStats", devPrintSystemStats)
+}
+
 // InitJsApi initializes the whole JS API
 func InitJsApi() {
 	initCreateFluidSystem()
 	initRequestUpdate()
+	initDevPrintSystemStats()
 }

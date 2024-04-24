@@ -69,6 +69,7 @@ FluidApi.updateHandler = (particles) => {
 function initControls() {
   const manUpdateBtn = document.getElementById('manual-update');
   const playBtn = document.getElementById('play-btn');
+  const statsBtn = document.getElementById('stats-btn');
   const fpsInput = document.getElementById('fps-input');
 
   fpsInput.value = DEFAULT_FPS;
@@ -107,6 +108,11 @@ function initControls() {
 
   manUpdateBtn.addEventListener('click', () => {
     requestAnimationFrame(() => FluidApi.requestUpdate());
+  });
+
+  // For debugging
+  statsBtn.addEventListener('click', () => {
+    FluidApi.devPrintSystemStats();
   });
 }
 
