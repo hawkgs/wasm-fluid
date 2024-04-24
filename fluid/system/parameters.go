@@ -8,15 +8,14 @@ const (
 	// that by plotting the functions (or their derivates, resp.) and examining how they change over time.
 	// SPH is very sensitive to parameter tuning. A hundredth of parameter change could be
 	// the difference between a stable simulation and absolute chaos.
-	SystemScale           = 40.0
-	particleMass          = 1.0
-	velocityLimit         = 10.0
-	gravityForce          = 750
-	smoothingRadiusH      = 0.5
-	gasConstK             = 100.0
-	restDensity           = 10.0
-	viscosityConst        = 50.0
-	spawnedParticleMargin = 0.15
-	collisionDamping      = 0.8
-	timestep              = 0.02 // i.e. DT; Delta Time
+	SystemScale      = 40.0
+	particleMass     = 1.0
+	velocityLimit    = 10.0
+	gravityForce     = 750
+	smoothingRadiusH = 0.5
+	gasConstK        = 100.0
+	restDensity      = 10.0
+	viscosityConst   = 50.0
+	collisionDamping = 0.5  // The higher, the more damping
+	timestep         = 0.02 // i.e. DT; Delta Time
 )
