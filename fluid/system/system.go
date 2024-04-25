@@ -184,21 +184,55 @@ func (s *System) devAlarmForNanPos(p *Particle) {
 func (s *System) DevPrintStats() {
 	var nanParticles uint = 0
 	var infParticles uint = 0
+	var cornerParticles uint = 0
+	var totalDensity float64 = 0
+	var minDensity float64 = math.Inf(1)
+	var maxDensity float64 = math.Inf(-1)
+
+	uiRad := s.config.ParticleUiRadius
+	cont := vectors.NewVector(
+		s.config.Width-uiRad,
+		s.config.Height-uiRad,
+	)
 
 	for _, p := range s.particles {
 		pos := p.position
+		totalDensity += p.density
+
 		if math.IsNaN(pos.X) || math.IsNaN(pos.Y) {
 			nanParticles++
 		} else if math.IsInf(pos.X, 1) || math.IsInf(pos.Y, 1) || math.IsInf(pos.X, -1) || math.IsInf(p.position.Y, -1) {
 			infParticles++
 		}
+
+		if pos.X == uiRad && pos.Y == uiRad ||
+			pos.X == cont.X && pos.Y == uiRad ||
+			pos.X == uiRad && pos.Y == cont.Y ||
+			pos.X == cont.X && pos.Y == cont.Y {
+			cornerParticles++
+		}
+
+		if p.density > maxDensity {
+			maxDensity = p.density
+		}
+		if p.density < minDensity {
+			minDensity = p.density
+		}
 	}
 
+	fmt.Println("")
 	fmt.Println("CURRENT SYSTEM STATS")
-	fmt.Println("--------------------")
+	fmt.Println("********************")
 	fmt.Println("Current frame:", s.devFramesCt)
+	fmt.Println("")
 	fmt.Println("Okay particles:", s.config.Particles-nanParticles-infParticles)
 	fmt.Println("NaN particles:", nanParticles)
 	fmt.Println("Inf particles:", infParticles)
 	fmt.Println("")
+	fmt.Println("Particles at the corners:", cornerParticles)
+	fmt.Println("")
+	fmt.Println("Average density:", totalDensity/float64(len(s.particles)))
+	fmt.Println("Max density:", maxDensity)
+	fmt.Println("Min density:", minDensity)
+	fmt.Println("....................")
 }
