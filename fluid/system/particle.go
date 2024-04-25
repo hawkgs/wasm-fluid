@@ -69,10 +69,11 @@ func (p *Particle) Update() {
 
 	// Clear the acceleration
 	p.acceleration.Multiply(0)
+	p.contain()
 }
 
-// Contain keeps the particle within its container (bounces off) when it reaches an edge
-func (p *Particle) Contain() {
+// contain keeps the particle within its container (bounces off) when it reaches an edge
+func (p *Particle) contain() {
 	// Right/left
 	if p.position.X > p.container.X {
 		p.velocity.X *= -1 * collisionDamping

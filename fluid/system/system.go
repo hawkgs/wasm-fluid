@@ -54,7 +54,6 @@ func (s *System) Update() []*Particle {
 
 		p.ApplyForce(nsForces)
 		p.Update()
-		p.Contain()
 
 		s.devAlarmForNanPos(p)
 	}
