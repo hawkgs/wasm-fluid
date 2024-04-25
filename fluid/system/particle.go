@@ -61,13 +61,11 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 
 // Update modifies the object's position depending on the applied forces on each rendering iteration
 func (p *Particle) Update() {
-	// We keep the velocity only for correctness based on physics laws
 	p.velocity.Add(p.acceleration)
 	p.velocity.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
-	p.position.Add(p.velocity)
-
-	// Limit the velocity
 	p.velocity.Limit(velocityLimit)
+
+	p.position.Add(p.velocity)
 
 	// Clear the acceleration
 	p.acceleration.Multiply(0)
