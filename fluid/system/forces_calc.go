@@ -6,8 +6,8 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-// Gravity vector
-var gravityVector = vectors.NewVector(0, gravityForce)
+// Gravity force
+var gravity = vectors.NewVector(0, gravityForce)
 
 // Normalization constant for the Spiky kernel adapted for 2D SPH
 var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
@@ -37,7 +37,7 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 
 	// If a sole particle (density = 0), return only ext. forces
 	if selected.density == 0 {
-		return gravityVector.Copy()
+		return gravity.Copy()
 	}
 
 	neighborParticles := system.getParticleNeighbors(selected)
@@ -47,7 +47,8 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		delta := selected.position.ImmutSubtract(p.position)
 		distance := delta.Magnitude()
 
-		if distance >= smoothingRadiusH {
+		// Same – if a density = 0, skip
+		if distance > smoothingRadiusH || p.density == 0 {
 			continue
 		}
 
@@ -74,5 +75,5 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 
 	// Add all forces: Navier-Stokes equation; Müller et al – Eqn. (7)
 	// => Pressure + Viscosity + Ext. forces (i.e. Gravity)
-	return pressure.ImmutAdd(viscosity).ImmutAdd(gravityVector)
+	return pressure.ImmutAdd(viscosity).ImmutAdd(gravity)
 }

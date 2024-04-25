@@ -19,3 +19,9 @@ const (
 	collisionDamping = 0.5  // The smaller, the more damping
 	timestep         = 0.02 // i.e. DT; Delta Time
 )
+
+// gasConstK        = 150.0
+// restDensity      = 1 / (0.3 * 0.3)
+// viscosityConst   = 0.01
+// collisionDamping = 0.05 // The smaller, the more damping
+// timestep         = 0.03 // i.e. DT; Delta Time

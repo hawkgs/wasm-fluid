@@ -170,6 +170,12 @@ func createParticles(cfg *SystemConfig) []*Particle {
 func (s *System) devAlarmForNanPos(p *Particle) {
 	if !s.devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
 		fmt.Println("NaN position detected!")
+		fmt.Println("Position =", p.position)
+		fmt.Println("Acceleration =", p.acceleration)
+		fmt.Println("Velocity =", p.velocity)
+		fmt.Println("Density =", p.density)
+		fmt.Println("")
+
 		s.devNanDetected = true
 	}
 }
@@ -177,17 +183,22 @@ func (s *System) devAlarmForNanPos(p *Particle) {
 // DevPrintStats prints the current status of the system. Used for debugging.
 func (s *System) DevPrintStats() {
 	var nanParticles uint = 0
+	var infParticles uint = 0
 
 	for _, p := range s.particles {
-		if math.IsNaN(p.position.X) || math.IsNaN(p.position.Y) {
+		pos := p.position
+		if math.IsNaN(pos.X) || math.IsNaN(pos.Y) {
 			nanParticles++
+		} else if math.IsInf(pos.X, 1) || math.IsInf(pos.Y, 1) || math.IsInf(pos.X, -1) || math.IsInf(p.position.Y, -1) {
+			infParticles++
 		}
 	}
 
 	fmt.Println("CURRENT SYSTEM STATS")
 	fmt.Println("--------------------")
 	fmt.Println("Current frame:", s.devFramesCt)
-	fmt.Println("Okay particles:", s.config.Particles-nanParticles)
+	fmt.Println("Okay particles:", s.config.Particles-nanParticles-infParticles)
 	fmt.Println("NaN particles:", nanParticles)
+	fmt.Println("Inf particles:", infParticles)
 	fmt.Println("")
 }
