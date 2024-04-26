@@ -35,8 +35,8 @@ func calculateDensity(system *System, selected *Particle) float64 {
 	// produce a very-very low density. Dividing the forces by that density leads to a very
 	// high acceleration (large magnitude) which ejects the particle from the stack again.
 	// This fix ensures that the density will never be lower than 1 unless 0.
-	if 0 < density && density < 1 {
-		return 1
-	}
+	// if 0 < density && density < 1 {
+	// 	return 1
+	// }
 	return density
 }

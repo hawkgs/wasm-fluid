@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	maxVelocity = 0.05      // Based on a downscaled field
+	maxVelocity = 20        // Based on a downscaled field
 	stepSize    = 1.0 / 3.0 // 0.33, equal to the gradient steps
 )
 

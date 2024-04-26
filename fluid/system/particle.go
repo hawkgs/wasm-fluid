@@ -5,19 +5,21 @@ import (
 )
 
 type Particle struct {
-	velocity  *vectors.Vector
-	position  *vectors.Vector
-	container *vectors.Vector
-	density   float64
-	cfg       *SystemConfig
+	velocity     *vectors.Vector
+	velocityHalf *vectors.Vector
+	position     *vectors.Vector
+	container    *vectors.Vector
+	density      float64
+	cfg          *SystemConfig
 }
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector, cfg *SystemConfig) *Particle {
 	return &Particle{
-		velocity:  vectors.NewVector(0, 0),
-		position:  position,
-		container: container,
-		cfg:       cfg,
+		velocity:     vectors.NewVector(0, 0),
+		velocityHalf: nil,
+		position:     position,
+		container:    container,
+		cfg:          cfg,
 	}
 }
 
@@ -33,8 +35,7 @@ func (p *Particle) SetDensity(density float64) {
 	p.density = density
 }
 
-// ApplyForce updates vector's velocity and position based on the provided force
-func (p *Particle) ApplyForce(force *vectors.Vector) {
+func (p *Particle) getDensity() float64 {
 	// Since our simulation is still unstable, we have cases
 	// where a single particle could be outside of the smoothing radius of
 	// any other particle, so the density is 0. However, ext. forces are
@@ -45,19 +46,32 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	if density <= 0 {
 		density = particleMass
 	}
+	return density
+}
 
+// For integration, we use Leapfrog method since Navier-Stokes PDE is of 2nd order
+
+// ApplyForce updates vector's velocity and position based on the provided force
+func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass (or density in our case)
-	acceleration := force.ImmutDivide(density)
+	acceleration := force.ImmutDivide(p.getDensity())
 
-	// For integration, we use Leapfrog method since Navier-Stokes PDE is of 2nd order
-	acceleration.Multiply(timestep / 2)
-	p.velocity.Add(acceleration) // Velocity at half step => v = v + a*DT/2
+	p.velocityHalf.Add(acceleration.ImmutMultiply(timestep))
+	p.velocity = p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(timestep / 2)) // Only for metrics
+	p.velocityHalf.Limit(velocityLimit)
 
-	p.velocity.Multiply(timestep)
-	p.velocity.Limit(velocityLimit)
+	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
+	p.contain()
+}
 
-	p.position.Add(p.velocity) // Position at full step => x = x + v*DT
+// ApplyInitialForces
+func (p *Particle) ApplyInitialForces(force *vectors.Vector) {
+	acceleration := force.ImmutDivide(p.getDensity())
 
+	p.velocityHalf = acceleration.ImmutMultiply(timestep / 2)
+	p.velocity.Add(acceleration.ImmutMultiply(timestep))
+
+	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
 	p.contain()
 }
 

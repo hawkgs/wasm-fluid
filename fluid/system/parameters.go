@@ -11,23 +11,11 @@ const (
 	SystemScale      = 40.0
 	particleMass     = 1.0
 	velocityLimit    = 10.0
-	gravityForce     = 750
-	smoothingRadiusH = 0.5
-	gasConstK        = 100.0
-	restDensity      = 10.0
-	viscosityConst   = 50.0
-	collisionDamping = 0.3  // The smaller, the more damping
-	timestep         = 0.03 // i.e. DT; Delta Time
+	gravityForce     = 0
+	smoothingRadiusH = 0.45
+	gasConstK        = 500.0
+	restDensity      = 2.0
+	viscosityConst   = 0.0
+	collisionDamping = 0.3   // The smaller, the more damping
+	timestep         = 0.003 // i.e. DT; Delta Time
 )
-
-// size: 400x400
-// 	SystemScale      = 15.0
-// particleMass     = 2
-// velocityLimit    = 200.0
-// gravityForce     = 10
-// smoothingRadiusH = 0.6
-// gasConstK        = 10
-// restDensity      = 6
-// viscosityConst   = 0.0
-// collisionDamping = 0.9  // The smaller, the more damping
-// timestep         = 0.05 // i.e. DT; Delta Time

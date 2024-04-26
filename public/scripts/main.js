@@ -4,7 +4,7 @@
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 600;
+const PARTICLES = 1000;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
 
