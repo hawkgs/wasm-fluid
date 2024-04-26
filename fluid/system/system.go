@@ -51,9 +51,7 @@ func (s *System) Update() []*Particle {
 	// Calculates pressure, viscosity and ext. forces for each particle and then apply them
 	for _, p := range s.particles {
 		nsForces := calculateNavierStokesForces(s, p)
-
 		p.ApplyForce(nsForces)
-		p.Update()
 
 		s.devAlarmForNanPos(p)
 	}
@@ -146,7 +144,7 @@ func createParticles(cfg *SystemConfig) []*Particle {
 
 	// The hardcoded values are arbitrary and affect
 	// the initial position of the particle stack
-	height := cfg.Height - margin*32
+	height := cfg.Height - margin*4
 	cursor := vectors.NewVector(margin*16, margin)
 
 	for i := range particles {

@@ -5,21 +5,19 @@ import (
 )
 
 type Particle struct {
-	acceleration *vectors.Vector
-	velocity     *vectors.Vector
-	position     *vectors.Vector
-	container    *vectors.Vector
-	density      float64
-	cfg          *SystemConfig
+	velocity  *vectors.Vector
+	position  *vectors.Vector
+	container *vectors.Vector
+	density   float64
+	cfg       *SystemConfig
 }
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector, cfg *SystemConfig) *Particle {
 	return &Particle{
-		acceleration: vectors.NewVector(0, 0),
-		velocity:     vectors.NewVector(0, 0),
-		position:     position,
-		container:    container,
-		cfg:          cfg,
+		velocity:  vectors.NewVector(0, 0),
+		position:  position,
+		container: container,
+		cfg:       cfg,
 	}
 }
 
@@ -31,15 +29,11 @@ func (p *Particle) GetVelocity() *vectors.Vector {
 	return p.velocity
 }
 
-func (p *Particle) GetAcceleration() *vectors.Vector {
-	return p.acceleration
-}
-
 func (p *Particle) SetDensity(density float64) {
 	p.density = density
 }
 
-// ApplyForce adds the force vector the object's acceleration vector
+// ApplyForce updates vector's velocity and position based on the provided force
 func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Since our simulation is still unstable, we have cases
 	// where a single particle could be outside of the smoothing radius of
@@ -53,22 +47,17 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	}
 
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass (or density in our case)
-	force.Divide(density)
-	force.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
+	acceleration := force.ImmutDivide(density)
 
-	p.acceleration.Add(force)
-}
+	// For integration, we use Leapfrog method since Navier-Stokes PDE is of 2nd order
+	acceleration.Multiply(timestep / 2)
+	p.velocity.Add(acceleration) // Velocity at half step => v = v + a*DT/2
 
-// Update modifies the object's position depending on the applied forces on each rendering iteration
-func (p *Particle) Update() {
-	p.velocity.Add(p.acceleration)
-	p.velocity.Multiply(timestep) // Euler method (integration; Muller's SPH assumes leap frog)
+	p.velocity.Multiply(timestep)
 	p.velocity.Limit(velocityLimit)
 
-	p.position.Add(p.velocity)
+	p.position.Add(p.velocity) // Position at full step => x = x + v*DT
 
-	// Clear the acceleration
-	p.acceleration.Multiply(0)
 	p.contain()
 }
 

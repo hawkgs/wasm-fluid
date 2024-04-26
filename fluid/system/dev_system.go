@@ -15,7 +15,6 @@ func (s *System) devAlarmForNanPos(p *Particle) {
 	if !s.devNanDetected && (math.IsNaN(p.position.X) || math.IsNaN(p.position.Y)) {
 		fmt.Println("NaN position detected!")
 		fmt.Println("Position =", p.position)
-		fmt.Println("Acceleration =", p.acceleration)
 		fmt.Println("Velocity =", p.velocity)
 		fmt.Println("Density =", p.density)
 		fmt.Println("")

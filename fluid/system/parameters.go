@@ -16,12 +16,18 @@ const (
 	gasConstK        = 100.0
 	restDensity      = 10.0
 	viscosityConst   = 50.0
-	collisionDamping = 0.5  // The smaller, the more damping
-	timestep         = 0.02 // i.e. DT; Delta Time
+	collisionDamping = 0.3  // The smaller, the more damping
+	timestep         = 0.03 // i.e. DT; Delta Time
 )
 
-// gasConstK        = 150.0
-// restDensity      = 1 / (0.3 * 0.3)
-// viscosityConst   = 0.01
-// collisionDamping = 0.05 // The smaller, the more damping
-// timestep         = 0.03 // i.e. DT; Delta Time
+// size: 400x400
+// 	SystemScale      = 15.0
+// particleMass     = 2
+// velocityLimit    = 200.0
+// gravityForce     = 10
+// smoothingRadiusH = 0.6
+// gasConstK        = 10
+// restDensity      = 6
+// viscosityConst   = 0.0
+// collisionDamping = 0.9  // The smaller, the more damping
+// timestep         = 0.05 // i.e. DT; Delta Time
