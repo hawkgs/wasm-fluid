@@ -43,7 +43,7 @@ func NewSystem(cfg *SystemConfig) *System {
 func (s *System) Update() []*Particle {
 	if s.firstUpdate {
 		s.calculateForces(func(p *Particle, f *vectors.Vector) {
-			p.ApplyInitialForces(f)
+			p.ApplyInitialForce(f)
 		})
 		s.firstUpdate = false
 	}

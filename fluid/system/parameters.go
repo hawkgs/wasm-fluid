@@ -13,9 +13,9 @@ const (
 	velocityLimit    = 10.0
 	gravityForce     = 0
 	smoothingRadiusH = 0.45
-	gasConstK        = 500.0
-	restDensity      = 2.0
+	gasConstK        = 800.0
+	restDensity      = 1.0
 	viscosityConst   = 0.0
 	collisionDamping = 0.3   // The smaller, the more damping
-	timestep         = 0.003 // i.e. DT; Delta Time
+	timestep         = 0.005 // i.e. DT; Delta Time
 )

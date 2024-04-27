@@ -28,7 +28,7 @@ func (p *Particle) GetPosition() *vectors.Vector {
 }
 
 func (p *Particle) GetVelocity() *vectors.Vector {
-	return p.velocity
+	return p.velocityHalf
 }
 
 func (p *Particle) SetDensity(density float64) {
@@ -57,21 +57,21 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
 	p.velocityHalf.Add(acceleration.ImmutMultiply(timestep))
-	p.velocity = p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(timestep / 2)) // Only for metrics
+	// p.velocity = p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(timestep / 2)) // Only for metrics
 	p.velocityHalf.Limit(velocityLimit)
 
 	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
 	p.contain()
 }
 
-// ApplyInitialForces
-func (p *Particle) ApplyInitialForces(force *vectors.Vector) {
+// ApplyInitialForce
+func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
 	p.velocityHalf = acceleration.ImmutMultiply(timestep / 2)
-	p.velocity.Add(acceleration.ImmutMultiply(timestep))
 
 	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
+
 	p.contain()
 }
 
