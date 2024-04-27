@@ -2,11 +2,12 @@
  * @typedef {Object} Go
  */
 
+import { initAnimationControls, initParametersControls } from './controls.js';
+
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const PARTICLES = 1000;
 const PARTICLE_UI_RADIUS = 3;
-const DEFAULT_FPS = 60;
 
 // Create grid (for debugging purposes)
 
@@ -77,65 +78,6 @@ function createSystem() {
   console.log('%cFluid system initialized!', 'color: lightgreen');
 }
 
-function initControls() {
-  const manUpdateBtn = document.getElementById('manual-update');
-  const playBtn = document.getElementById('play-btn');
-  const statsBtn = document.getElementById('stats-btn');
-  const resetBtn = document.getElementById('reset-btn');
-  const fpsInput = document.getElementById('fps-input');
-
-  fpsInput.value = DEFAULT_FPS;
-
-  let isPlaying = false,
-    interval;
-
-  const play = () => {
-    playBtn.innerHTML = '⏸️ PAUSE';
-    manUpdateBtn.disabled = true;
-    fpsInput.disabled = true;
-
-    const fps = parseInt(fpsInput.value, 10);
-
-    interval = setInterval(() => {
-      requestAnimationFrame(() => FluidApi.requestUpdate());
-    }, 1000 / fps);
-  };
-
-  const pause = () => {
-    playBtn.innerHTML = '▶️ PLAY';
-    manUpdateBtn.disabled = false;
-    fpsInput.disabled = false;
-
-    clearInterval(interval);
-  };
-
-  playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-
-    isPlaying = !isPlaying;
-  });
-
-  manUpdateBtn.addEventListener('click', () => {
-    requestAnimationFrame(() => FluidApi.requestUpdate());
-  });
-
-  resetBtn.addEventListener('click', () => {
-    if (isPlaying) {
-      pause();
-      isPlaying = false;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    createSystem();
-  });
-
-  // For debugging
-  statsBtn.addEventListener('click', () => FluidApi.devPrintSystemStats());
-}
-
 async function init() {
   const go = new Go();
   const results = await WebAssembly.instantiateStreaming(
@@ -145,7 +87,21 @@ async function init() {
   go.run(results.instance);
 
   createSystem();
-  initControls();
+
+  let interval;
+
+  initAnimationControls({
+    onPlay: (fps) => {
+      interval = setInterval(() => {
+        requestAnimationFrame(() => FluidApi.requestUpdate());
+      }, 1000 / fps);
+    },
+    onPause: () => clearInterval(interval),
+  });
+
+  initParametersControls((paramName, value) => {
+    // console.log(paramName, value);
+  });
 }
 
 init();
