@@ -24,7 +24,10 @@ func initCreateFluidSystem() {
 
 		// Build the config and initialize the system
 		cfg := system.NewSystemConfig(width, height, particles, particleUiRadius)
-		fluidSystem = system.NewSystem(cfg)
+
+		params := createParams(args[1])
+
+		fluidSystem = system.NewSystem(cfg, params)
 
 		return nil
 	})
@@ -56,9 +59,37 @@ func initDevPrintSystemStats() {
 	js.Global().Get(FluidApi).Set("devPrintSystemStats", devPrintSystemStats)
 }
 
+func initDevParamsUpdate() {
+	devParamsUpdate := js.FuncOf(func(this js.Value, args []js.Value) any {
+		params := createParams(args[0])
+		fluidSystem.SetParams(params)
+
+		return nil
+	})
+
+	js.Global().Get(FluidApi).Set("devParamsUpdate", devParamsUpdate)
+}
+
+func createParams(obj js.Value) *system.Parameters {
+	gravityForce := obj.Get("gravityForce").Float()
+	gasConstK := obj.Get("gasConstK").Float()
+	restDensity := obj.Get("restDensity").Float()
+	viscosityConst := obj.Get("viscosityConst").Float()
+	// timestep := obj.Get("timestep").Float()
+
+	return &system.Parameters{
+		GravityForce:   gravityForce,
+		GasConstK:      gasConstK,
+		RestDensity:    restDensity,
+		ViscosityConst: viscosityConst,
+		// Timestep:       timestep,
+	}
+}
+
 // InitJsApi initializes the whole JS API
 func InitJsApi() {
 	initCreateFluidSystem()
 	initRequestUpdate()
 	initDevPrintSystemStats()
+	initDevParamsUpdate()
 }

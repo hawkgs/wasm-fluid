@@ -1,6 +1,8 @@
 const DEFAULT_FPS = 60;
 
-export function initAnimationControls({ onPlay, onPause }) {
+const animEvents = new EventTarget();
+
+export function initAnimationControls({ onPlay, onPause, onReset, onStats }) {
   const manUpdateBtn = document.getElementById('manual-update');
   const playBtn = document.getElementById('play-btn');
   const statsBtn = document.getElementById('stats-btn');
@@ -18,6 +20,7 @@ export function initAnimationControls({ onPlay, onPause }) {
 
     const fps = parseInt(fpsInput.value, 10);
 
+    animEvents.dispatchEvent(new CustomEvent('anim', { detail: 'play' }));
     onPlay(fps);
   };
 
@@ -26,6 +29,7 @@ export function initAnimationControls({ onPlay, onPause }) {
     manUpdateBtn.disabled = false;
     fpsInput.disabled = false;
 
+    animEvents.dispatchEvent(new CustomEvent('anim', { detail: 'pause' }));
     onPause();
   };
 
@@ -48,53 +52,79 @@ export function initAnimationControls({ onPlay, onPause }) {
       pause();
       isPlaying = false;
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    createSystem();
+    onReset();
   });
 
-  // For debugging
-  statsBtn.addEventListener('click', () => FluidApi.devPrintSystemStats());
+  statsBtn.addEventListener('click', onStats);
 }
 
-export function initParametersControls(onParamsUpdate) {
+export function initParametersControls(onParamsUpdate, defaults) {
   const fragment = document.createDocumentFragment();
-  [
+  const controls = [
     createSliderCtrl({
-      name: 'Gravity',
+      name: 'Smoothing radius (h)',
+      range: { min: 0, max: 2 },
+      defaultValue: defaults.smoothingRadiusH,
+      step: 0.001,
+      onUpdate: (v) => onParamsUpdate('smoothingRadiusH', v),
+    }),
+    createSliderCtrl({
+      name: 'Timestep (𝚫t)',
+      range: { min: 0, max: 0.1 },
+      defaultValue: defaults.timestep,
+      step: 0.0001,
+      onUpdate: (v) => onParamsUpdate('timestep', v),
+    }),
+    document.createElement('hr'),
+    createSliderCtrl({
+      name: 'Gravity (G)',
       range: { min: 0, max: 5000 },
-      defaultValue: 1000,
+      defaultValue: defaults.gravityForce,
       step: 10,
       onUpdate: (v) => onParamsUpdate('gravityForce', v),
     }),
     createSliderCtrl({
-      name: 'Smoothing radius',
-      range: { min: 0, max: 10 },
-      defaultValue: 0.5,
-      step: 0.01,
-      onUpdate: (v) => onParamsUpdate('smoothingRadiusH', v),
-    }),
-    createSliderCtrl({
-      name: 'Gas const',
+      name: 'Gas const (k)',
       range: { min: 0, max: 2000 },
-      defaultValue: 800,
+      defaultValue: defaults.gasConstK,
       step: 1,
       onUpdate: (v) => onParamsUpdate('gasConstK', v),
     }),
     createSliderCtrl({
-      name: 'Rest density',
+      name: 'Rest density (⍴₀)',
       range: { min: 0, max: 100 },
-      defaultValue: 5,
+      defaultValue: defaults.restDensity,
       step: 0.1,
       onUpdate: (v) => onParamsUpdate('restDensity', v),
     }),
     createSliderCtrl({
-      name: 'Viscosity const',
-      range: { min: 0, max: 50 },
-      defaultValue: 0,
+      name: 'Viscosity const (μ)',
+      range: { min: 0, max: 200 },
+      defaultValue: defaults.viscosityConst,
       step: 0.1,
       onUpdate: (v) => onParamsUpdate('viscosityConst', v),
     }),
-  ].forEach((ctrl) => fragment.appendChild(ctrl));
+  ];
+
+  controls.forEach((ctrlObj) => {
+    const el = ctrlObj.ctrl ? ctrlObj.ctrl : ctrlObj;
+    fragment.appendChild(el);
+  });
+
+  const [smRadiusCtrlObj, timestepCtrlObj] = controls;
+
+  animEvents.addEventListener('anim', ({ detail }) => {
+    switch (detail) {
+      case 'play':
+        smRadiusCtrlObj.slider.disabled = true;
+        timestepCtrlObj.slider.disabled = true;
+        break;
+      case 'pause':
+        smRadiusCtrlObj.slider.disabled = false;
+        timestepCtrlObj.slider.disabled = false;
+        break;
+    }
+  });
 
   document.getElementById('params').appendChild(fragment);
 }
@@ -123,8 +153,8 @@ function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
   slider.type = 'range';
   slider.min = range.min;
   slider.max = range.max;
-  slider.value = defaultValue;
-  slider.step = step || 0.1;
+  slider.step = step.toString();
+  slider.value = defaultValue.toString();
 
   ctrl.appendChild(slider);
   ctrl.appendChild(maxLabel);
@@ -136,8 +166,8 @@ function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
 
   slider.addEventListener('input', () => {
     currVal.innerHTML = slider.value;
-    onUpdate(slider.value);
+    onUpdate(parseInt(slider.value, 10));
   });
 
-  return ctrl;
+  return { ctrl, slider };
 }

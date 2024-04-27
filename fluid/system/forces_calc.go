@@ -7,7 +7,7 @@ import (
 )
 
 // Gravity force
-var gravity = vectors.NewVector(0, gravityForce)
+// var gravity = vectors.NewVector(0, gravityForce)
 
 // Normalization constant for the Spiky kernel adapted for 2D SPH
 var spikyNormalizationConst = -30 / (math.Pi * math.Pow(smoothingRadiusH, 5))
@@ -27,21 +27,22 @@ func viscositySmoothingKernelLaplacian(distR float64) float64 {
 }
 
 // Müller et al – Eqn. (12)
-func calculatePressure(density float64) float64 {
-	return gasConstK * (density - restDensity)
+func calculatePressure(density float64, params *Parameters) float64 {
+	return params.GasConstK * (density - params.RestDensity)
 }
 
 func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Vector {
 	pressure := vectors.NewVector(0, 0)
 	viscosity := vectors.NewVector(0, 0)
+	gravity := vectors.NewVector(0, system.params.GravityForce)
 
 	// If a sole particle (density = 0), return only ext. forces
 	if selected.density == 0 {
-		return gravity.Copy()
+		return gravity
 	}
 
 	neighborParticles := system.getParticleNeighbors(selected)
-	selectedPressure := calculatePressure(selected.density)
+	selectedPressure := calculatePressure(selected.density, system.params)
 
 	for _, p := range neighborParticles {
 		delta := selected.position.ImmutSubtract(p.position)
@@ -55,7 +56,7 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		// Calculate pressure gradient; Müller et al – Eqn. (10)
 		wPres := pressureSmoothingKernelDerivative(distance)
 
-		pressureMean := (selectedPressure + calculatePressure(p.density)) / 2
+		pressureMean := (selectedPressure + calculatePressure(p.density, system.params)) / 2
 		presScalarStep := -particleMass * pressureMean * wPres / p.density
 
 		dir := delta.Normalized()
@@ -66,7 +67,7 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 		// Calculate viscosity Laplacian; Müller et al – Eqn. (14)
 		wVisc := viscositySmoothingKernelLaplacian(distance)
 
-		viscScalarStep := particleMass * viscosityConst * wVisc
+		viscScalarStep := particleMass * system.params.ViscosityConst * wVisc
 		velocityDiff := p.velocity.ImmutSubtract(selected.velocity).ImmutDivide(p.density)
 		velocityDiff.Multiply(viscScalarStep)
 
