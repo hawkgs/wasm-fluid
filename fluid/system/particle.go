@@ -5,7 +5,7 @@ import (
 )
 
 type Particle struct {
-	velocity     *vectors.Vector
+	// The velocity is named velocityHalf since we are using Leapfrog integration
 	velocityHalf *vectors.Vector
 	position     *vectors.Vector
 	container    *vectors.Vector
@@ -15,7 +15,6 @@ type Particle struct {
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector, cfg *SystemConfig) *Particle {
 	return &Particle{
-		velocity:     vectors.NewVector(0, 0),
 		velocityHalf: nil,
 		position:     position,
 		container:    container,
@@ -57,7 +56,7 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
 	p.velocityHalf.Add(acceleration.ImmutMultiply(p.cfg.Timestep))
-	// p.velocity = p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(timestep / 2)) // Only for metrics
+
 	p.velocityHalf.Limit(p.cfg.VelocityLimit)
 
 	p.position.Add(p.velocityHalf.ImmutMultiply(p.cfg.Timestep))
@@ -81,19 +80,19 @@ func (p *Particle) contain() {
 
 	// Right/left
 	if p.position.X > p.container.X {
-		p.velocity.X *= -1 * cd
+		p.velocityHalf.X *= -1 * cd
 		p.position.X = p.container.X
 	} else if p.position.X < p.cfg.ParticleUiRadius {
-		p.velocity.X *= -1 * cd
+		p.velocityHalf.X *= -1 * cd
 		p.position.X = p.cfg.ParticleUiRadius
 	}
 
 	// Bottom/top
 	if p.position.Y > p.container.Y {
-		p.velocity.Y *= -1 * cd
+		p.velocityHalf.Y *= -1 * cd
 		p.position.Y = p.container.Y
 	} else if p.position.Y < p.cfg.ParticleUiRadius {
-		p.velocity.Y *= -1 * cd
+		p.velocityHalf.Y *= -1 * cd
 		p.position.Y = p.cfg.ParticleUiRadius
 	}
 }
