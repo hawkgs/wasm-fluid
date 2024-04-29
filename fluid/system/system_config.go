@@ -2,14 +2,14 @@ package system
 
 import "math"
 
-// Real-time update NOT OK
+// Real-time updates – NOT OK
 type StaticParams struct {
 	SystemScale      float64
 	SmoothingRadiusH float64
 	Timestep         float64 // i.e. DT; Delta Time
 }
 
-// Real-time update OK
+// Real-time updates – OK
 type DynamicParams struct {
 	ParticleMass     float64
 	GravityForce     float64

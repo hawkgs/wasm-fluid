@@ -85,9 +85,9 @@ export function initParametersControls(onParamsUpdate, defaults) {
     }),
     createSliderCtrl({
       name: 'Gravity (G)',
-      range: { min: 0, max: 5000 },
+      range: { min: 0, max: 50 },
       defaultValue: defaults.gravityForce,
-      step: 10,
+      step: 0.2,
       onUpdate: (v) => onParamsUpdate('gravityForce', v),
     }),
     createSliderCtrl({
@@ -115,7 +115,7 @@ export function initParametersControls(onParamsUpdate, defaults) {
       name: 'Velocity limit',
       range: { min: 1, max: 50 },
       defaultValue: defaults.velocityLimit,
-      step: 1,
+      step: 0.1,
       onUpdate: (v) => onParamsUpdate('velocityLimit', v),
     }),
     createSliderCtrl({

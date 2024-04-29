@@ -4,8 +4,8 @@ import (
 	"github.com/hawkgs/wasm-fluid/fluid/vectors"
 )
 
-// Gravity force
-// var gravity = vectors.NewVector(0, gravityForce)
+// Used for scaling the input gravity force value (i.e. avoid inputing values in the thousandths)
+const gravityScalingFactor = 100
 
 // Derivative of the pressure kernel; Müller et al – Eqn. (21) Spiky kernel
 func pressureSmoothingKernelDerivative(distR float64, cfg *SystemConfig) float64 {
@@ -27,7 +27,7 @@ func calculateNavierStokesForces(system *System, selected *Particle) *vectors.Ve
 	c := system.config
 	pressure := vectors.NewVector(0, 0)
 	viscosity := vectors.NewVector(0, 0)
-	gravity := vectors.NewVector(0, c.GravityForce)
+	gravity := vectors.NewVector(0, c.GravityForce*gravityScalingFactor)
 
 	// If a sole particle (density = 0), return only ext. forces
 	if selected.density == 0 {
