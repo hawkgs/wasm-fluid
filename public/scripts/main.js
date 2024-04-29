@@ -9,18 +9,28 @@ const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const PARTICLES = 1000;
 const PARTICLE_UI_RADIUS = 3;
+const DEFAULT_FPS = 60;
 
 const parameters = {
+  systemScale: 40,
+  smoothingRadiusH: 0.45,
+  timestep: 0.005,
+  particleMass: 1,
   gravityForce: 0,
   gasConstK: 380,
   restDensity: 1.7,
   viscosityConst: 0,
-  smoothingRadiusH: 0.45,
-  timestep: 0.005,
+  velocityLimit: 10,
+  collisionDamping: 0.1,
 };
 
 // Create grid (for debugging purposes)
-createGrid({ showCellKey: false, width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+createGrid({
+  showCellKey: false,
+  width: CANVAS_WIDTH,
+  height: CANVAS_HEIGHT,
+  parameters,
+});
 
 // Animation
 
@@ -45,15 +55,13 @@ FluidApi.updateHandler = (particles) => {
 function createSystem() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  FluidApi.createFluidSystem(
-    {
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      particles: PARTICLES,
-      particleUiRadius: PARTICLE_UI_RADIUS,
-    },
-    parameters,
-  );
+  FluidApi.createFluidSystem({
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    particles: PARTICLES,
+    particleUiRadius: PARTICLE_UI_RADIUS,
+    ...parameters,
+  });
 
   console.log('%cFluid system initialized!', 'color: lightgreen');
 }
@@ -70,23 +78,26 @@ async function init() {
 
   let interval;
 
-  initAnimationControls({
-    onPlay: (fps) => {
-      interval = setInterval(() => {
-        requestAnimationFrame(() => FluidApi.requestUpdate());
-      }, 1000 / fps);
+  initAnimationControls(
+    {
+      onPlay: (fps) => {
+        interval = setInterval(() => {
+          requestAnimationFrame(() => FluidApi.requestUpdate());
+        }, 1000 / fps);
+      },
+      onPause: () => clearInterval(interval),
+      onStats: () => FluidApi.devPrintSystemStats(),
+      onReset: createSystem,
     },
-    onPause: () => clearInterval(interval),
-    onStats: () => FluidApi.devPrintSystemStats(),
-    onReset: createSystem,
-  });
+    DEFAULT_FPS,
+  );
 
   initParametersControls((paramName, value) => {
     if (['smoothingRadiusH', 'timestep'].includes(paramName)) {
       createSystem();
     }
     parameters[paramName] = value;
-    FluidApi.devParamsUpdate(parameters);
+    FluidApi.updateDynamicParams(parameters);
   }, parameters);
 }
 

@@ -86,9 +86,18 @@ func (s *System) DevPrintStats() {
 	fmt.Println(
 		"Params: Field =", cfg.Width,
 		"x", cfg.Height,
-		"| h =", smoothingRadiusH,
+		"| h =", cfg.SmoothingRadiusH,
 		"| p⌀ =", cfg.ParticleUiRadius*2,
-		"| 𝚫t =", timestep,
+		"| 𝚫t =", cfg.Timestep,
+		"| m =", cfg.ParticleMass,
+	)
+	fmt.Println(
+		"G =", cfg.GravityForce,
+		"| k =", cfg.GasConstK,
+		"| ⍴₀ =", cfg.RestDensity,
+		"| μ =", cfg.ViscosityConst,
+		"| V limit =", cfg.VelocityLimit,
+		"| Col. damp =", cfg.CollisionDamping,
 	)
 	fmt.Println("Particles => OK:", okayParticles, "/ NaN:", nanParticles, "/ Inf:", infParticles)
 	fmt.Println("Particles at the corners:", atCorner)

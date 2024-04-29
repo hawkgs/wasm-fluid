@@ -44,7 +44,7 @@ func (p *Particle) getDensity() float64 {
 	// Why density is used?: Müller et al – Eqn. (8)
 	density := p.density
 	if density <= 0 {
-		density = particleMass
+		density = p.cfg.ParticleMass
 	}
 	return density
 }
@@ -56,11 +56,11 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	// Newton's 2nd law: Acceleration = Sum of all forces / Mass (or density in our case)
 	acceleration := force.ImmutDivide(p.getDensity())
 
-	p.velocityHalf.Add(acceleration.ImmutMultiply(timestep))
+	p.velocityHalf.Add(acceleration.ImmutMultiply(p.cfg.Timestep))
 	// p.velocity = p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(timestep / 2)) // Only for metrics
-	p.velocityHalf.Limit(velocityLimit)
+	p.velocityHalf.Limit(p.cfg.VelocityLimit)
 
-	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
+	p.position.Add(p.velocityHalf.ImmutMultiply(p.cfg.Timestep))
 	p.contain()
 }
 
@@ -68,30 +68,32 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
-	p.velocityHalf = acceleration.ImmutMultiply(timestep / 2)
+	p.velocityHalf = acceleration.ImmutMultiply(p.cfg.Timestep / 2)
 
-	p.position.Add(p.velocityHalf.ImmutMultiply(timestep))
+	p.position.Add(p.velocityHalf.ImmutMultiply(p.cfg.Timestep))
 
 	p.contain()
 }
 
 // contain keeps the particle within its container (bounces off) when it reaches an edge
 func (p *Particle) contain() {
+	cd := p.cfg.CollisionDamping
+
 	// Right/left
 	if p.position.X > p.container.X {
-		p.velocity.X *= -1 * collisionDamping
+		p.velocity.X *= -1 * cd
 		p.position.X = p.container.X
 	} else if p.position.X < p.cfg.ParticleUiRadius {
-		p.velocity.X *= -1 * collisionDamping
+		p.velocity.X *= -1 * cd
 		p.position.X = p.cfg.ParticleUiRadius
 	}
 
 	// Bottom/top
 	if p.position.Y > p.container.Y {
-		p.velocity.Y *= -1 * collisionDamping
+		p.velocity.Y *= -1 * cd
 		p.position.Y = p.container.Y
 	} else if p.position.Y < p.cfg.ParticleUiRadius {
-		p.velocity.Y *= -1 * collisionDamping
+		p.velocity.Y *= -1 * cd
 		p.position.Y = p.cfg.ParticleUiRadius
 	}
 }

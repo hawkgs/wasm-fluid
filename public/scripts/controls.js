@@ -1,15 +1,16 @@
-const DEFAULT_FPS = 60;
-
 const animEvents = new EventTarget();
 
-export function initAnimationControls({ onPlay, onPause, onReset, onStats }) {
+export function initAnimationControls(
+  { onPlay, onPause, onReset, onStats },
+  defaultFps,
+) {
   const manUpdateBtn = document.getElementById('manual-update');
   const playBtn = document.getElementById('play-btn');
   const statsBtn = document.getElementById('stats-btn');
   const resetBtn = document.getElementById('reset-btn');
   const fpsInput = document.getElementById('fps-input');
 
-  fpsInput.value = DEFAULT_FPS;
+  fpsInput.value = defaultFps;
 
   let isPlaying = false;
 
@@ -59,7 +60,6 @@ export function initAnimationControls({ onPlay, onPause, onReset, onStats }) {
 }
 
 export function initParametersControls(onParamsUpdate, defaults) {
-  const fragment = document.createDocumentFragment();
   const controls = [
     createSliderCtrl({
       name: 'Smoothing radius (h)',
@@ -77,6 +77,13 @@ export function initParametersControls(onParamsUpdate, defaults) {
     }),
     document.createElement('hr'),
     createSliderCtrl({
+      name: 'Particle mass (m)',
+      range: { min: 1, max: 20 },
+      defaultValue: defaults.particleMass,
+      step: 0.1,
+      onUpdate: (v) => onParamsUpdate('particleMass', v),
+    }),
+    createSliderCtrl({
       name: 'Gravity (G)',
       range: { min: 0, max: 5000 },
       defaultValue: defaults.gravityForce,
@@ -92,9 +99,9 @@ export function initParametersControls(onParamsUpdate, defaults) {
     }),
     createSliderCtrl({
       name: 'Rest density (⍴₀)',
-      range: { min: 0, max: 100 },
+      range: { min: 0, max: 40 },
       defaultValue: defaults.restDensity,
-      step: 0.1,
+      step: 0.001,
       onUpdate: (v) => onParamsUpdate('restDensity', v),
     }),
     createSliderCtrl({
@@ -104,12 +111,21 @@ export function initParametersControls(onParamsUpdate, defaults) {
       step: 0.1,
       onUpdate: (v) => onParamsUpdate('viscosityConst', v),
     }),
+    createSliderCtrl({
+      name: 'Velocity limit',
+      range: { min: 1, max: 50 },
+      defaultValue: defaults.velocityLimit,
+      step: 1,
+      onUpdate: (v) => onParamsUpdate('velocityLimit', v),
+    }),
+    createSliderCtrl({
+      name: 'Collision damping',
+      range: { min: 0, max: 1 },
+      defaultValue: defaults.collisionDamping,
+      step: 0.1,
+      onUpdate: (v) => onParamsUpdate('collisionDamping', v),
+    }),
   ];
-
-  controls.forEach((ctrlObj) => {
-    const el = ctrlObj.ctrl ? ctrlObj.ctrl : ctrlObj;
-    fragment.appendChild(el);
-  });
 
   const [smRadiusCtrlObj, timestepCtrlObj] = controls;
 
@@ -124,6 +140,12 @@ export function initParametersControls(onParamsUpdate, defaults) {
         timestepCtrlObj.slider.disabled = false;
         break;
     }
+  });
+
+  const fragment = document.createDocumentFragment();
+  controls.forEach((ctrlObj) => {
+    const el = ctrlObj.ctrl ? ctrlObj.ctrl : ctrlObj;
+    fragment.appendChild(el);
   });
 
   document.getElementById('params').appendChild(fragment);
@@ -166,7 +188,7 @@ function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
 
   slider.addEventListener('input', () => {
     currVal.innerHTML = slider.value;
-    onUpdate(parseInt(slider.value, 10));
+    onUpdate(parseFloat(slider.value));
   });
 
   return { ctrl, slider };

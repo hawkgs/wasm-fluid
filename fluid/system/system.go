@@ -10,7 +10,6 @@ import (
 
 type System struct {
 	config      *SystemConfig
-	params      *Parameters
 	particles   []*Particle
 	grid        map[string][]*Particle
 	gridWidth   uint
@@ -22,15 +21,14 @@ type System struct {
 	devNanDetected bool
 }
 
-func NewSystem(cfg *SystemConfig, params *Parameters) *System {
+func NewSystem(cfg *SystemConfig) *System {
 	particles := createParticles(cfg)
 
-	gridWidth := uint(math.Ceil(cfg.Width / smoothingRadiusH))
-	gridHeight := uint(math.Ceil(cfg.Height / smoothingRadiusH))
+	gridWidth := uint(math.Ceil(cfg.Width / cfg.SmoothingRadiusH))
+	gridHeight := uint(math.Ceil(cfg.Height / cfg.SmoothingRadiusH))
 
 	return &System{
 		cfg,
-		params,
 		particles,
 		make(map[string][]*Particle, gridWidth*gridHeight),
 		gridWidth,
@@ -41,8 +39,12 @@ func NewSystem(cfg *SystemConfig, params *Parameters) *System {
 	}
 }
 
-func (s *System) SetParams(params *Parameters) {
-	s.params = params
+func (s *System) GetConfig() *SystemConfig {
+	return s.config
+}
+
+func (s *System) UpdateDynamicParams(params *DynamicParams) {
+	s.config.DynamicParams = params
 }
 
 // Update updates the system
