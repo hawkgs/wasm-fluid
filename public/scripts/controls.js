@@ -109,14 +109,14 @@ export function initParametersControls(onParamsUpdate, defaults) {
     }),
     createSliderCtrl({
       name: 'Viscosity const (μ)',
-      range: { min: 0, max: 200 },
+      range: { min: 0, max: 20 },
       defaultValue: defaults.viscosityConst,
-      step: 0.1,
+      step: 0.01,
       onUpdate: (v) => onParamsUpdate('viscosityConst', v),
     }),
     createSliderCtrl({
       name: 'Velocity limit (V lim)',
-      range: { min: 1, max: 50 },
+      range: { min: 0.1, max: 50 },
       defaultValue: defaults.velocityLimit,
       step: 0.1,
       onUpdate: (v) => onParamsUpdate('velocityLimit', v),

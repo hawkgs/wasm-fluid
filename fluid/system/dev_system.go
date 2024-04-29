@@ -16,6 +16,7 @@ func (s *System) devAlarmForNanPos(p *Particle) {
 		fmt.Println("NaN position detected!")
 		fmt.Println("Position =", p.position)
 		fmt.Println("Velocity =", p.velocity)
+		fmt.Println("Velocity 1/2 =", p.velocityHalf)
 		fmt.Println("Density =", p.density)
 		fmt.Println("")
 

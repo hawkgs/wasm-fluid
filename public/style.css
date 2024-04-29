@@ -74,7 +74,7 @@ canvas {
 
 #params .range-min {
   text-align: right;
-  width: 10px;
+  width: 25px;
 }
 
 #params .curr-val {
@@ -97,6 +97,6 @@ canvas {
 }
 
 #params input[type='range'] {
-  width: 50%;
+  width: 47%;
   cursor: pointer;
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type Particle struct {
-	// The velocity is named velocityHalf since we are using Leapfrog integration
+	velocity     *vectors.Vector
 	velocityHalf *vectors.Vector
 	position     *vectors.Vector
 	container    *vectors.Vector
@@ -15,7 +15,8 @@ type Particle struct {
 
 func NewParticle(position *vectors.Vector, container *vectors.Vector, cfg *SystemConfig) *Particle {
 	return &Particle{
-		velocityHalf: nil,
+		velocity:     vectors.NewVector(0, 0),
+		velocityHalf: vectors.NewVector(0, 0),
 		position:     position,
 		container:    container,
 		cfg:          cfg,
@@ -27,7 +28,7 @@ func (p *Particle) GetPosition() *vectors.Vector {
 }
 
 func (p *Particle) GetVelocity() *vectors.Vector {
-	return p.velocityHalf
+	return p.velocity
 }
 
 func (p *Particle) SetDensity(density float64) {
@@ -56,8 +57,10 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
 	p.velocityHalf.Add(acceleration.ImmutMultiply(p.cfg.Timestep))
-
 	p.velocityHalf.Limit(p.cfg.VelocityLimit)
+
+	p.velocity.Add(p.velocityHalf.ImmutAdd(acceleration.ImmutMultiply(p.cfg.Timestep / 2)))
+	p.velocity.Limit(p.cfg.VelocityLimit)
 
 	p.position.Add(p.velocityHalf.ImmutMultiply(p.cfg.Timestep))
 	p.contain()
@@ -69,7 +72,7 @@ func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 
 	p.velocityHalf = acceleration.ImmutMultiply(p.cfg.Timestep / 2)
-
+	p.velocity = acceleration.ImmutMultiply(p.cfg.Timestep)
 	p.position.Add(p.velocityHalf.ImmutMultiply(p.cfg.Timestep))
 
 	p.contain()
@@ -77,23 +80,27 @@ func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 
 // contain keeps the particle within its container (bounces off) when it reaches an edge
 func (p *Particle) contain() {
-	cd := p.cfg.CollisionDamping
+	reflect := -1 * p.cfg.CollisionDamping
 
 	// Right/left
 	if p.position.X > p.container.X {
-		p.velocityHalf.X *= -1 * cd
+		p.velocity.X *= reflect
+		p.velocityHalf.X *= reflect
 		p.position.X = p.container.X
 	} else if p.position.X < p.cfg.ParticleUiRadius {
-		p.velocityHalf.X *= -1 * cd
+		p.velocity.X *= reflect
+		p.velocityHalf.X *= reflect
 		p.position.X = p.cfg.ParticleUiRadius
 	}
 
 	// Bottom/top
 	if p.position.Y > p.container.Y {
-		p.velocityHalf.Y *= -1 * cd
+		p.velocity.Y *= reflect
+		p.velocityHalf.Y *= reflect
 		p.position.Y = p.container.Y
 	} else if p.position.Y < p.cfg.ParticleUiRadius {
-		p.velocityHalf.Y *= -1 * cd
+		p.velocity.Y *= reflect
+		p.velocityHalf.Y *= reflect
 		p.position.Y = p.cfg.ParticleUiRadius
 	}
 }
