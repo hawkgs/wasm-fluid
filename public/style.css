@@ -83,7 +83,12 @@ canvas {
   padding: 2px 4px;
   border-radius: 3px;
   background-color: #ffffff;
-  width: 60px;
+  width: 64px;
+  border: none;
+}
+
+#params .curr-val:disabled {
+  color: #a0a0a0;
 }
 
 #params .name {
@@ -91,7 +96,7 @@ canvas {
   display: block;
 }
 
-#params input {
+#params input[type='range'] {
   width: 50%;
   cursor: pointer;
 }

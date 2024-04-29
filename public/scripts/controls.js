@@ -130,25 +130,25 @@ export function initParametersControls(onParamsUpdate, defaults) {
     }),
   ];
 
-  const [smRadiusCtrlObj, timestepCtrlObj] = controls;
+  const [smRadiusCtrl, timestepCtrl] = controls;
 
   // Disable smoothing radius and timestep controls when the animation is playing
   animEvents.addEventListener('anim', ({ detail }) => {
     switch (detail) {
       case 'play':
-        smRadiusCtrlObj.slider.disabled = true;
-        timestepCtrlObj.slider.disabled = true;
+        smRadiusCtrl.setDisabled(true);
+        timestepCtrl.setDisabled(true);
         break;
       case 'pause':
-        smRadiusCtrlObj.slider.disabled = false;
-        timestepCtrlObj.slider.disabled = false;
+        smRadiusCtrl.setDisabled(false);
+        timestepCtrl.setDisabled(false);
         break;
     }
   });
 
   const fragment = document.createDocumentFragment();
-  controls.forEach((ctrlObj) => {
-    const el = ctrlObj.ctrl ? ctrlObj.ctrl : ctrlObj;
+  controls.forEach((ctrl) => {
+    const el = ctrl.element ? ctrl.element : ctrl;
     fragment.appendChild(el);
   });
 
@@ -157,14 +157,14 @@ export function initParametersControls(onParamsUpdate, defaults) {
 
 // Creates a slider control
 function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
-  const ctrl = document.createElement('div');
-  ctrl.className = 'slider-ctrl';
+  const element = document.createElement('div');
+  element.className = 'slider-ctrl';
 
   const nameLabel = document.createElement('span');
   nameLabel.className = 'name';
   nameLabel.innerHTML = name + ':';
 
-  ctrl.appendChild(nameLabel);
+  element.appendChild(nameLabel);
 
   const minLabel = document.createElement('span');
   minLabel.className = 'range-val range-min';
@@ -174,7 +174,7 @@ function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
   maxLabel.className = 'range-val range-max';
   maxLabel.innerHTML = range.max;
 
-  ctrl.appendChild(minLabel);
+  element.appendChild(minLabel);
 
   const slider = document.createElement('input');
   slider.type = 'range';
@@ -183,18 +183,32 @@ function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
   slider.step = step.toString();
   slider.value = defaultValue.toString();
 
-  ctrl.appendChild(slider);
-  ctrl.appendChild(maxLabel);
+  element.appendChild(slider);
+  element.appendChild(maxLabel);
 
-  const currVal = document.createElement('span');
-  currVal.className = 'curr-val';
-  currVal.innerHTML = defaultValue;
-  ctrl.appendChild(currVal);
+  const currValInput = document.createElement('input');
+  currValInput.type = 'number';
+  currValInput.min = range.min;
+  currValInput.max = range.max;
+  currValInput.className = 'curr-val';
+  currValInput.value = defaultValue;
+  element.appendChild(currValInput);
 
   slider.addEventListener('input', () => {
-    currVal.innerHTML = slider.value;
+    currValInput.value = slider.value;
     onUpdate(parseFloat(slider.value));
   });
 
-  return { ctrl, slider };
+  currValInput.addEventListener('change', () => {
+    slider.value = currValInput.value;
+    onUpdate(parseFloat(currValInput.value));
+  });
+
+  return {
+    element,
+    setDisabled: (disabled) => {
+      slider.disabled = disabled;
+      currValInput.disabled = disabled;
+    },
+  };
 }
