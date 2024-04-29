@@ -1,5 +1,7 @@
+// Animation events (e.g. play, pause)
 const animEvents = new EventTarget();
 
+// Initializes the main animation controls
 export function initAnimationControls(
   { onPlay, onPause, onReset, onStats },
   defaultFps,
@@ -59,6 +61,7 @@ export function initAnimationControls(
   statsBtn.addEventListener('click', onStats);
 }
 
+// Creates and initializes the slider controls for the
 export function initParametersControls(onParamsUpdate, defaults) {
   const controls = [
     createSliderCtrl({
@@ -112,7 +115,7 @@ export function initParametersControls(onParamsUpdate, defaults) {
       onUpdate: (v) => onParamsUpdate('viscosityConst', v),
     }),
     createSliderCtrl({
-      name: 'Velocity limit',
+      name: 'Velocity limit (V lim)',
       range: { min: 1, max: 50 },
       defaultValue: defaults.velocityLimit,
       step: 0.1,
@@ -129,6 +132,7 @@ export function initParametersControls(onParamsUpdate, defaults) {
 
   const [smRadiusCtrlObj, timestepCtrlObj] = controls;
 
+  // Disable smoothing radius and timestep controls when the animation is playing
   animEvents.addEventListener('anim', ({ detail }) => {
     switch (detail) {
       case 'play':
@@ -151,6 +155,7 @@ export function initParametersControls(onParamsUpdate, defaults) {
   document.getElementById('params').appendChild(fragment);
 }
 
+// Creates a slider control
 function createSliderCtrl({ name, range, defaultValue, step, onUpdate }) {
   const ctrl = document.createElement('div');
   ctrl.className = 'slider-ctrl';

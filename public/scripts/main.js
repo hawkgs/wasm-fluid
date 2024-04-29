@@ -25,7 +25,7 @@ const parameters = {
 };
 
 // Create grid (for debugging purposes)
-createGrid({
+const updateCellRadius = createGrid({
   showCellKey: false,
   width: CANVAS_WIDTH,
   height: CANVAS_HEIGHT,
@@ -52,6 +52,7 @@ FluidApi.updateHandler = (particles) => {
   });
 };
 
+// Create/reset the fluid system
 function createSystem() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -93,9 +94,15 @@ async function init() {
   );
 
   initParametersControls((paramName, value) => {
+    // Reset the system, if `h` or `dt` are updated
     if (['smoothingRadiusH', 'timestep'].includes(paramName)) {
       createSystem();
     }
+    // Update the grid, if `h` is updated
+    if (paramName === 'smoothingRadiusH') {
+      updateCellRadius(value);
+    }
+
     parameters[paramName] = value;
     FluidApi.updateDynamicParams(parameters);
   }, parameters);

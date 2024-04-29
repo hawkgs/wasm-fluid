@@ -18,6 +18,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   padding-top: 0.5px;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .grid-cell {
