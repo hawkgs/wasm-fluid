@@ -43,6 +43,7 @@ func (s *System) GetConfig() *SystemConfig {
 	return s.config
 }
 
+// UpdateDynamicParams updates all dynamic simulation params
 func (s *System) UpdateDynamicParams(params *DynamicParams) {
 	s.config.DynamicParams = params
 }

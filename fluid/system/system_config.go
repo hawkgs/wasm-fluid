@@ -2,14 +2,14 @@ package system
 
 import "math"
 
-// Real-time updates – NOT OK
+// StaticParams keeps all simulation parameters that are NOT eligible for real-time updates
 type StaticParams struct {
 	SystemScale      float64
 	SmoothingRadiusH float64
 	Timestep         float64 // i.e. DT; Delta Time
 }
 
-// Real-time updates – OK
+// DynamicParams keeps all simulation parameters that are eligible for real-time updates
 type DynamicParams struct {
 	ParticleMass     float64
 	GravityForce     float64
@@ -20,6 +20,7 @@ type DynamicParams struct {
 	CollisionDamping float64 // The smaller, the more damping
 }
 
+// SystemConfig keeps all the config properties and simulation parameters, including pre-computed values
 type SystemConfig struct {
 	// General
 	Width            float64

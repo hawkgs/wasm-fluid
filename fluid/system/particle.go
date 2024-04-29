@@ -63,7 +63,8 @@ func (p *Particle) ApplyForce(force *vectors.Vector) {
 	p.contain()
 }
 
-// ApplyInitialForce
+// ApplyInitialForce should be called the first time the particle is updated in order to
+// update the velocity at half step (Leapfrog)
 func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 	acceleration := force.ImmutDivide(p.getDensity())
 

@@ -16,9 +16,7 @@ var fluidSystem *system.System
 func initCreateFluidSystem() {
 	// Creates a fluid system by the provided config params
 	createFluidSystem := js.FuncOf(func(this js.Value, args []js.Value) any {
-		// Build the config and initialize the system
 		cfg := createConfigObject(args[0])
-
 		fluidSystem = system.NewSystem(cfg)
 
 		return nil
@@ -43,6 +41,7 @@ func initRequestUpdate() {
 	js.Global().Get(FluidApi).Set("requestUpdate", requestUpdate)
 }
 
+// initUpdateDynamicParams exposes dynamic parameters updating to our JS context
 func initUpdateDynamicParams() {
 	updateDynamicParams := js.FuncOf(func(this js.Value, args []js.Value) any {
 		obj := args[0]
@@ -70,7 +69,7 @@ func initUpdateDynamicParams() {
 	js.Global().Get(FluidApi).Set("updateDynamicParams", updateDynamicParams)
 }
 
-// initDevPrintSystemStats is used for debugging purposes
+// initDevPrintSystemStats prints a snapshot of the system's state (used for debugging); Public/JS
 func initDevPrintSystemStats() {
 	devPrintSystemStats := js.FuncOf(func(this js.Value, args []js.Value) any {
 		fluidSystem.DevPrintStats()
@@ -81,6 +80,7 @@ func initDevPrintSystemStats() {
 	js.Global().Get(FluidApi).Set("devPrintSystemStats", devPrintSystemStats)
 }
 
+// createConfigObject creates a SystemConfig based on the provided JS object
 func createConfigObject(obj js.Value) *system.SystemConfig {
 	width := obj.Get("width").Int()
 	height := obj.Get("height").Int()
@@ -123,6 +123,6 @@ func createConfigObject(obj js.Value) *system.SystemConfig {
 func InitJsApi() {
 	initCreateFluidSystem()
 	initRequestUpdate()
-	initDevPrintSystemStats()
 	initUpdateDynamicParams()
+	initDevPrintSystemStats()
 }
