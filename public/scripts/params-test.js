@@ -26,13 +26,13 @@ export const params2 = {
 
 export const params3 = {
   systemScale: 40,
-  smoothingRadiusH: 1.151,
+  smoothingRadiusH: 1.15,
   timestep: 0.005,
   particleMass: 0.83,
-  gravityForce: 30.2,
-  gasConstK: 1134,
-  restDensity: 3.944,
-  viscosityConst: 11.01,
+  gravityForce: 30,
+  gasConstK: 1135,
+  restDensity: 4,
+  viscosityConst: 11.0,
   velocityLimit: 8.3,
-  collisionDamping: 0.3,
+  collisionDamping: 0.7,
 };

@@ -17,7 +17,7 @@ type DynamicParams struct {
 	RestDensity      float64
 	ViscosityConst   float64
 	VelocityLimit    float64
-	CollisionDamping float64 // The smaller, the more damping
+	CollisionDamping float64
 }
 
 // SystemConfig keeps all the config properties and simulation parameters, including pre-computed values

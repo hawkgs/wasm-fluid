@@ -80,7 +80,7 @@ func (p *Particle) ApplyInitialForce(force *vectors.Vector) {
 
 // contain keeps the particle within its container (bounces off) when it reaches an edge
 func (p *Particle) contain() {
-	reflect := -1 * p.cfg.CollisionDamping
+	reflect := -1 * (1 - p.cfg.CollisionDamping)
 
 	// Right/left
 	if p.position.X > p.container.X {
