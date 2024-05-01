@@ -87,8 +87,8 @@ func (s *System) DevPrintStats() {
 	fmt.Println(
 		"Params: Field =", cfg.Width,
 		"x", cfg.Height,
-		"| h =", cfg.SmoothingRadiusH,
 		"| p⌀ =", cfg.ParticleUiRadius*2,
+		"| h =", cfg.SmoothingRadiusH,
 		"| 𝚫t =", cfg.Timestep,
 		"| m =", cfg.ParticleMass,
 	)

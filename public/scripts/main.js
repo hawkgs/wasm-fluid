@@ -4,14 +4,16 @@
 
 import { initAnimationControls, initParametersControls } from './controls.js';
 import { createGrid } from './grid.js';
+import * as Params from './params-test.js';
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const PARTICLES = 1000;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
+const PARAMS_CACHE_KEY = 'sim-params';
 
-const parameters = {
+const defaultParams = {
   systemScale: 40,
   smoothingRadiusH: 0.45,
   timestep: 0.005,
@@ -23,6 +25,13 @@ const parameters = {
   velocityLimit: 10,
   collisionDamping: 0.1,
 };
+
+const parameters =
+  JSON.parse(localStorage.getItem(PARAMS_CACHE_KEY) || 'false') ||
+  Params.params3;
+
+// Print params (for debugging)
+window.devPrintParams = () => console.log(parameters);
 
 // Create grid (for debugging purposes)
 const updateCellRadius = createGrid({
@@ -87,24 +96,29 @@ async function init() {
         }, 1000 / fps);
       },
       onPause: () => clearInterval(interval),
-      onStats: () => FluidApi.devPrintSystemStats(),
       onReset: createSystem,
+      onStats: () => FluidApi.devPrintSystemStats(),
+      onParamsSave: () => {
+        console.log('Parameters saved.');
+        localStorage.setItem(PARAMS_CACHE_KEY, JSON.stringify(parameters));
+      },
     },
     DEFAULT_FPS,
   );
 
   initParametersControls((paramName, value) => {
+    parameters[paramName] = value;
+
     // Reset the system, if `h` or `dt` are updated
     if (['smoothingRadiusH', 'timestep'].includes(paramName)) {
       createSystem();
+    } else {
+      FluidApi.updateDynamicParams(parameters);
     }
     // Update the grid, if `h` is updated
     if (paramName === 'smoothingRadiusH') {
       updateCellRadius(value);
     }
-
-    parameters[paramName] = value;
-    FluidApi.updateDynamicParams(parameters);
   }, parameters);
 }
 

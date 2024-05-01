@@ -3,13 +3,14 @@ const animEvents = new EventTarget();
 
 // Initializes the main animation controls
 export function initAnimationControls(
-  { onPlay, onPause, onReset, onStats },
+  { onPlay, onPause, onReset, onStats, onParamsSave },
   defaultFps,
 ) {
   const manUpdateBtn = document.getElementById('manual-update');
   const playBtn = document.getElementById('play-btn');
   const statsBtn = document.getElementById('stats-btn');
   const resetBtn = document.getElementById('reset-btn');
+  const saveParamsBtn = document.getElementById('save-params-btn');
   const fpsInput = document.getElementById('fps-input');
 
   fpsInput.value = defaultFps;
@@ -58,6 +59,8 @@ export function initAnimationControls(
     onReset();
   });
 
+  saveParamsBtn.addEventListener('click', onParamsSave);
+
   statsBtn.addEventListener('click', onStats);
 }
 
@@ -81,9 +84,9 @@ export function initParametersControls(onParamsUpdate, defaults) {
     document.createElement('hr'),
     createSliderCtrl({
       name: 'Particle mass (m)',
-      range: { min: 1, max: 20 },
+      range: { min: 0.1, max: 20 },
       defaultValue: defaults.particleMass,
-      step: 0.1,
+      step: 0.01,
       onUpdate: (v) => onParamsUpdate('particleMass', v),
     }),
     createSliderCtrl({
