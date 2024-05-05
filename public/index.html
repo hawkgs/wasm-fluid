@@ -6,6 +6,7 @@
     <title>WASM Fluid Demo</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/gh/golang/go@master/misc/wasm/wasm_exec.js"></script>
+    <!-- <script src="scripts/controls.js" type="module"></script> -->
     <script src="scripts/main.js" type="module"></script>
   </head>
   <body>
@@ -17,9 +18,11 @@
       <label for="fps-input">FPS:</label>
       <input id="fps-input" type="number" />
       <button id="manual-update">🎞️ NEXT FRAME</button>
-      <button id="reset-btn">♻️ RESET</button>
       <button id="stats-btn">📊 STATS</button>
+      <button id="save-params-btn">💾 SAVE PARAMS</button>
+      <button id="reset-btn">♻️ RESET</button>
       <button id="play-btn">▶️ PLAY</button>
     </div>
+    <div id="params"></div>
   </body>
 </html>

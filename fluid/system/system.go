@@ -9,11 +9,12 @@ import (
 )
 
 type System struct {
-	config     *SystemConfig
-	particles  []*Particle
-	grid       map[string][]*Particle
-	gridWidth  uint
-	gridHeight uint
+	config      *SystemConfig
+	particles   []*Particle
+	grid        map[string][]*Particle
+	gridWidth   uint
+	gridHeight  uint
+	firstUpdate bool
 
 	// For debugging
 	devFramesCt    uint
@@ -23,8 +24,8 @@ type System struct {
 func NewSystem(cfg *SystemConfig) *System {
 	particles := createParticles(cfg)
 
-	gridWidth := uint(math.Ceil(cfg.Width / smoothingRadiusH))
-	gridHeight := uint(math.Ceil(cfg.Height / smoothingRadiusH))
+	gridWidth := uint(math.Ceil(cfg.Width / cfg.SmoothingRadiusH))
+	gridHeight := uint(math.Ceil(cfg.Height / cfg.SmoothingRadiusH))
 
 	return &System{
 		cfg,
@@ -32,13 +33,42 @@ func NewSystem(cfg *SystemConfig) *System {
 		make(map[string][]*Particle, gridWidth*gridHeight),
 		gridWidth,
 		gridHeight,
+		true,
 		0,
 		false,
 	}
 }
 
-// Update calculates all densities, the Navier-Stokes forces based on SPH and then applies them
+func (s *System) GetConfig() *SystemConfig {
+	return s.config
+}
+
+// UpdateDynamicParams updates all dynamic simulation params
+func (s *System) UpdateDynamicParams(params *DynamicParams) {
+	s.config.DynamicParams = params
+}
+
+// Update updates the system
 func (s *System) Update() []*Particle {
+	if s.firstUpdate {
+		s.calculateForces(func(p *Particle, f *vectors.Vector) {
+			p.ApplyInitialForce(f)
+		})
+		s.firstUpdate = false
+	}
+
+	s.calculateForces(func(p *Particle, f *vectors.Vector) {
+		p.ApplyForce(f)
+		s.devAlarmForNanPos(p)
+	})
+
+	s.devFramesCt++
+
+	return s.particles
+}
+
+// calculateForces calculates all densities, the Navier-Stokes forces based on SPH and then applies them
+func (s *System) calculateForces(op func(p *Particle, f *vectors.Vector)) {
 	// We need to know the cell of every particle prior the calculations
 	s.updateGrid()
 
@@ -51,14 +81,8 @@ func (s *System) Update() []*Particle {
 	// Calculates pressure, viscosity and ext. forces for each particle and then apply them
 	for _, p := range s.particles {
 		nsForces := calculateNavierStokesForces(s, p)
-		p.ApplyForce(nsForces)
-
-		s.devAlarmForNanPos(p)
+		op(p, nsForces)
 	}
-
-	s.devFramesCt++
-
-	return s.particles
 }
 
 // updateGrid creates/updates a grid with particles with the size of the smoothing radius.

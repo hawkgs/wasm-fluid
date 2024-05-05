@@ -18,6 +18,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   padding-top: 0.5px;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .grid-cell {
@@ -50,4 +52,51 @@ canvas {
     margin: 0 5px;
     min-width: 80px;
   }
+}
+
+#params {
+  width: 600px;
+  margin: 20px auto;
+  font-size: 14px;
+}
+
+#params > .slider-ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+#params .range-val {
+  font-family: 'Courier New', Courier, monospace;
+  width: 30px;
+}
+
+#params .range-min {
+  text-align: right;
+  width: 25px;
+}
+
+#params .curr-val {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background-color: #ffffff;
+  width: 64px;
+  border: none;
+}
+
+#params .curr-val:disabled {
+  color: #a0a0a0;
+}
+
+#params .name {
+  width: 25%;
+  display: block;
+}
+
+#params input[type='range'] {
+  width: 47%;
+  cursor: pointer;
 }

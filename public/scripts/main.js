@@ -2,49 +2,44 @@
  * @typedef {Object} Go
  */
 
+import { initAnimationControls, initParametersControls } from './controls.js';
+import { createGrid } from './grid.js';
+import * as Params from './params-test.js';
+
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
-const PARTICLES = 600;
+const PARTICLES = 1000;
 const PARTICLE_UI_RADIUS = 3;
 const DEFAULT_FPS = 60;
+const PARAMS_CACHE_KEY = 'sim-params';
+
+const defaultParams = {
+  systemScale: 40,
+  smoothingRadiusH: 0.45,
+  timestep: 0.005,
+  particleMass: 1,
+  gravityForce: 0,
+  gasConstK: 380,
+  restDensity: 1.7,
+  viscosityConst: 0,
+  velocityLimit: 10,
+  collisionDamping: 0.1,
+};
+
+const parameters =
+  JSON.parse(localStorage.getItem(PARAMS_CACHE_KEY) || 'false') ||
+  Params.params3;
+
+// Print params (for debugging)
+window.devPrintParams = () => console.log(parameters);
 
 // Create grid (for debugging purposes)
-
-// Correlates to the vals in parameters.go
-const SYS_SCALE = 40;
-const SMOOTHING_RADIUS_H = 0.5;
-const SCALED_H = SYS_SCALE * SMOOTHING_RADIUS_H;
-
-function createGrid(showCellKey) {
-  const grid = document.getElementById('grid');
-  grid.style.width = CANVAS_WIDTH + 'px';
-  grid.style.height = CANVAS_HEIGHT + 'px';
-
-  const gridWidth = CANVAS_WIDTH / SCALED_H;
-  const gridHeight = CANVAS_HEIGHT / SCALED_H;
-  const gridSize = gridWidth * gridHeight;
-
-  for (let i = 0, x = 0; i < gridSize; i++) {
-    const y = i % gridWidth;
-
-    const gCell = document.createElement('div');
-    gCell.className = 'grid-cell';
-    gCell.style.width = SCALED_H + 'px';
-    gCell.style.height = SCALED_H + 'px';
-
-    if (showCellKey) {
-      gCell.innerText = `${x},${y}`;
-    }
-
-    grid.appendChild(gCell);
-
-    if (y === gridWidth - 1) {
-      x++;
-    }
-  }
-}
-
-createGrid(false);
+const updateCellRadius = createGrid({
+  showCellKey: false,
+  width: CANVAS_WIDTH,
+  height: CANVAS_HEIGHT,
+  parameters,
+});
 
 // Animation
 
@@ -66,74 +61,19 @@ FluidApi.updateHandler = (particles) => {
   });
 };
 
+// Create/reset the fluid system
 function createSystem() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   FluidApi.createFluidSystem({
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
     particles: PARTICLES,
     particleUiRadius: PARTICLE_UI_RADIUS,
+    ...parameters,
   });
 
   console.log('%cFluid system initialized!', 'color: lightgreen');
-}
-
-function initControls() {
-  const manUpdateBtn = document.getElementById('manual-update');
-  const playBtn = document.getElementById('play-btn');
-  const statsBtn = document.getElementById('stats-btn');
-  const resetBtn = document.getElementById('reset-btn');
-  const fpsInput = document.getElementById('fps-input');
-
-  fpsInput.value = DEFAULT_FPS;
-
-  let isPlaying = false,
-    interval;
-
-  const play = () => {
-    playBtn.innerHTML = '⏸️ PAUSE';
-    manUpdateBtn.disabled = true;
-    fpsInput.disabled = true;
-
-    const fps = parseInt(fpsInput.value, 10);
-
-    interval = setInterval(() => {
-      requestAnimationFrame(() => FluidApi.requestUpdate());
-    }, 1000 / fps);
-  };
-
-  const pause = () => {
-    playBtn.innerHTML = '▶️ PLAY';
-    manUpdateBtn.disabled = false;
-    fpsInput.disabled = false;
-
-    clearInterval(interval);
-  };
-
-  playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-
-    isPlaying = !isPlaying;
-  });
-
-  manUpdateBtn.addEventListener('click', () => {
-    requestAnimationFrame(() => FluidApi.requestUpdate());
-  });
-
-  resetBtn.addEventListener('click', () => {
-    if (isPlaying) {
-      pause();
-      isPlaying = false;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    createSystem();
-  });
-
-  // For debugging
-  statsBtn.addEventListener('click', () => FluidApi.devPrintSystemStats());
 }
 
 async function init() {
@@ -145,7 +85,41 @@ async function init() {
   go.run(results.instance);
 
   createSystem();
-  initControls();
+
+  let interval;
+
+  initAnimationControls(
+    {
+      onPlay: (fps) => {
+        interval = setInterval(() => {
+          requestAnimationFrame(() => FluidApi.requestUpdate());
+        }, 1000 / fps);
+      },
+      onPause: () => clearInterval(interval),
+      onReset: createSystem,
+      onStats: () => FluidApi.devPrintSystemStats(),
+      onParamsSave: () => {
+        console.log('Parameters saved.');
+        localStorage.setItem(PARAMS_CACHE_KEY, JSON.stringify(parameters));
+      },
+    },
+    DEFAULT_FPS,
+  );
+
+  initParametersControls((paramName, value) => {
+    parameters[paramName] = value;
+
+    // Reset the system, if `h` or `dt` are updated
+    if (['smoothingRadiusH', 'timestep'].includes(paramName)) {
+      createSystem();
+    } else {
+      FluidApi.updateDynamicParams(parameters);
+    }
+    // Update the grid, if `h` is updated
+    if (paramName === 'smoothingRadiusH') {
+      updateCellRadius(value);
+    }
+  }, parameters);
 }
 
 init();
